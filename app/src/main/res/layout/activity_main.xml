@@ -2,18 +2,102 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_paper"
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TEST"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="100dp"
+        android:text="다꾸메이커"
+        android:textColor="@color/black"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        android:shadowColor="#80000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Decorative elements mimicking the design -->
+    <View
+        android:id="@+id/line1"
+        android:layout_width="250dp"
+        android:layout_height="8dp"
+        android:layout_marginTop="150dp"
+        android:background="#A9CCE3"
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+        
+    <!-- Cherry/Sun placeholder -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_circle_red"
+        app:layout_constraintBottom_toTopOf="@id/line1"
+        app:layout_constraintStart_toStartOf="@id/line1"
+        android:layout_marginBottom="-10dp"
+        android:layout_marginStart="20dp"/>
+
+    <View
+        android:id="@+id/line2"
+        android:layout_width="250dp"
+        android:layout_height="8dp"
+        android:layout_marginTop="80dp"
+        android:background="#A9CCE3"
+        app:layout_constraintTop_toBottomOf="@id/line1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Flower placeholder -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_circle_orange"
+        app:layout_constraintBottom_toTopOf="@id/line2"
+        app:layout_constraintEnd_toEndOf="@id/line2"
+        android:layout_marginBottom="-10dp"
+        android:layout_marginEnd="20dp"/>
+
+    <View
+        android:id="@+id/line3"
+        android:layout_width="250dp"
+        android:layout_height="8dp"
+        android:layout_marginTop="80dp"
+        android:background="#A9CCE3"
+        app:layout_constraintTop_toBottomOf="@id/line2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Rainbow placeholder -->
+    <View
+        android:layout_width="50dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_circle_blue"
+        app:layout_constraintBottom_toTopOf="@id/line3"
+        app:layout_constraintStart_toStartOf="@id/line3"
+        android:layout_marginBottom="-10dp"
+        android:layout_marginStart="10dp"/>
+
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="100dp"
+        android:background="@drawable/bg_rounded_card"
+        android:paddingHorizontal="40dp"
+        android:paddingVertical="15dp"
+        android:text="시작하기"
+        android:textColor="@color/text_header"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

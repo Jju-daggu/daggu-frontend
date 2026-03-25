@@ -20,6 +20,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".DashboardActivity" />
+        <activity android:name=".CalendarActivity" />
+        <activity android:name=".UploadActivity" />
+        <activity android:name=".AnalysisActivity" />
+        <activity android:name=".StickerPreviewActivity" />
+        <activity android:name=".VaultActivity" />
+        <activity android:name=".PlacementActivity" />
+        <activity android:name=".PrintActivity" />
     </application>
 
 </manifest>

@@ -2,4 +2,22 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Background Paper Color -->
+    <color name="bg_paper">#F5EFDF</color>
+    <color name="bg_paper_darker">#EBE2CA</color>
+
+    <!-- UI Elements -->
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_card_stroke">#BDBDBD</color>
+    <color name="text_main">#5C5C5C</color>
+    <color name="text_header">#424242</color>
+
+    <!-- Paste Colors for Icons/Highlights -->
+    <color name="pastel_red">#F1A7A7</color>
+    <color name="pastel_orange">#F8C8A0</color>
+    <color name="pastel_yellow">#F9E79F</color>
+    <color name="pastel_green">#C3E6CB</color>
+    <color name="pastel_blue">#A9CCE3</color>
+    <color name="pastel_purple">#D2B4DE</color>
 </resources>
