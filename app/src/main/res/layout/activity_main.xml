@@ -1,103 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_paper"
-    tools:context=".MainActivity">
+    android:fillViewport="true"
+    android:background="@drawable/main_background">
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:text="다꾸메이커"
-        android:textColor="@color/black"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        android:shadowColor="#80000000"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:context=".MainActivity">
 
-    <!-- Decorative elements mimicking the design -->
-    <View
-        android:id="@+id/line1"
-        android:layout_width="250dp"
-        android:layout_height="8dp"
-        android:layout_marginTop="150dp"
-        android:background="#A9CCE3"
-        app:layout_constraintTop_toBottomOf="@id/tv_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-        
-    <!-- Cherry/Sun placeholder -->
-    <View
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/bg_circle_red"
-        app:layout_constraintBottom_toTopOf="@id/line1"
-        app:layout_constraintStart_toStartOf="@id/line1"
-        android:layout_marginBottom="-10dp"
-        android:layout_marginStart="20dp"/>
+        <com.example.daggumaker.StrokeTextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:text="다꾸메이커"
+            android:textColor="#FFFFFF"
+            android:textSize="55sp"
+            android:fontFamily="@font/diary_font"
+            app:text_stroke="true"
+            app:text_stroke_width="1.5dp"
+            app:text_stroke_color="#000000"
 
-    <View
-        android:id="@+id/line2"
-        android:layout_width="250dp"
-        android:layout_height="8dp"
-        android:layout_marginTop="80dp"
-        android:background="#A9CCE3"
-        app:layout_constraintTop_toBottomOf="@id/line1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+            android:shadowColor="#40000000"
+            android:shadowDx="10"
+            android:shadowDy="4"
+            android:shadowRadius="3"
 
-    <!-- Flower placeholder -->
-    <View
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/bg_circle_orange"
-        app:layout_constraintBottom_toTopOf="@id/line2"
-        app:layout_constraintEnd_toEndOf="@id/line2"
-        android:layout_marginBottom="-10dp"
-        android:layout_marginEnd="20dp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <View
-        android:id="@+id/line3"
-        android:layout_width="250dp"
-        android:layout_height="8dp"
-        android:layout_marginTop="80dp"
-        android:background="#A9CCE3"
-        app:layout_constraintTop_toBottomOf="@id/line2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <TextView
+            android:id="@+id/tv_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_subtitle_box"
+            android:fontFamily="@font/diary_font"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="8dp"
+            android:text="내 일기가 스티커가 되는 곳"
+            android:textColor="#707070"
+            android:textSize="16sp"
 
-    <!-- Rainbow placeholder -->
-    <View
-        android:layout_width="50dp"
-        android:layout_height="40dp"
-        android:background="@drawable/bg_circle_blue"
-        app:layout_constraintBottom_toTopOf="@id/line3"
-        app:layout_constraintStart_toStartOf="@id/line3"
-        android:layout_marginBottom="-10dp"
-        android:layout_marginStart="10dp"/>
+            android:elevation="6dp"
 
-    <Button
-        android:id="@+id/btn_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
-        android:background="@drawable/bg_rounded_card"
-        android:paddingHorizontal="40dp"
-        android:paddingVertical="15dp"
-        android:text="시작하기"
-        android:textColor="@color/text_header"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+            android:layout_marginBottom="8dp"
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+        <View
+            android:id="@+id/img_sun"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/ic_sun_placeholder"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_subtitle" />
+
+        <View
+            android:id="@+id/line1"
+            android:layout_width="250dp"
+            android:layout_height="10dp"
+            android:layout_marginTop="144dp"
+            android:background="#B2E2F2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_subtitle" />
+
+        <View
+            android:id="@+id/line2"
+            android:layout_width="250dp"
+            android:layout_height="10dp"
+            android:layout_marginTop="68dp"
+            android:background="#B2E2F2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/line1" />
+
+        <View
+            android:id="@+id/line3"
+            android:layout_width="250dp"
+            android:layout_height="10dp"
+            android:layout_marginTop="68dp"
+            android:background="#B2E2F2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/line2" />
+
+        <View
+            android:id="@+id/icon_cherry"
+            android:layout_width="61dp"
+            android:layout_height="61dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="-2dp"
+            android:background="@drawable/ic_cherry_placeholder"
+            app:layout_constraintBottom_toBottomOf="@id/line1"
+            app:layout_constraintStart_toStartOf="@id/line1" />
+
+        <View
+            android:id="@+id/icon_flower"
+            android:layout_width="61dp"
+            android:layout_height="59dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="-2dp"
+            android:background="@drawable/ic_flower_placeholder"
+            app:layout_constraintBottom_toBottomOf="@id/line2"
+            app:layout_constraintEnd_toEndOf="@id/line2" />
+
+        <View
+            android:id="@+id/icon_rainbow"
+            android:layout_width="69dp"
+            android:layout_height="61dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="-2dp"
+            android:background="@drawable/ic_rainbow_placeholder"
+            app:layout_constraintBottom_toBottomOf="@id/line3"
+            app:layout_constraintStart_toStartOf="@id/line3" />
+
+        <LinearLayout
+            android:id="@+id/btn_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_marginBottom="60dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/line3">
+
+            <TextView
+                android:id="@+id/btn_start_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="시 작 하 기"
+                android:textColor="#555555"
+                android:textSize="32sp"
+                android:fontFamily="@font/diary_font"
+
+                android:shadowColor="#30000000"
+                android:shadowDx="3"
+                android:shadowDy="3"
+                android:shadowRadius="2" />
+
+            <View
+                android:layout_width="160dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="6dp"
+                android:background="#888888"
+                android:elevation="2dp" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
