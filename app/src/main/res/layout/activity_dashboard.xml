@@ -47,30 +47,105 @@
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/tv_view_calendar">
 
-        <View
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="120dp"
             android:layout_weight="1"
             android:layout_margin="4dp"
-            android:background="@drawable/bg_rounded_card" />
-        <View
+            android:background="@drawable/bg_rounded_card"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="4dp">
+            <TextView
+                android:id="@+id/tv_date_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/diary_font"
+                android:text=""
+                android:textColor="#333333"
+                android:textSize="24sp" />
+            <View
+                android:id="@+id/iv_emotion_1"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_circle_red" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="120dp"
             android:layout_weight="1"
             android:layout_margin="4dp"
-            android:background="@drawable/bg_rounded_card" />
-        <View
+            android:background="@drawable/bg_rounded_card"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="4dp">
+            <TextView
+                android:id="@+id/tv_date_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/diary_font"
+                android:text=""
+                android:textColor="#333333"
+                android:textSize="24sp" />
+            <View
+                android:id="@+id/iv_emotion_2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_circle_orange" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="120dp"
             android:layout_weight="1"
             android:layout_margin="4dp"
-            android:background="@drawable/bg_rounded_card" />
-        <View
+            android:background="@drawable/bg_rounded_card"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="4dp">
+            <TextView
+                android:id="@+id/tv_date_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/diary_font"
+                android:text=""
+                android:textColor="#333333"
+                android:textSize="24sp" />
+            <View
+                android:id="@+id/iv_emotion_3"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_circle_red" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="120dp"
             android:layout_weight="1"
             android:layout_margin="4dp"
-            android:background="@drawable/bg_rounded_card" />
+            android:background="@drawable/bg_rounded_card"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="4dp">
+            <TextView
+                android:id="@+id/tv_date_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/diary_font"
+                android:text=""
+                android:textColor="#333333"
+                android:textSize="24sp" />
+            <View
+                android:id="@+id/iv_emotion_4"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_circle_blue" />
+        </LinearLayout>
     </LinearLayout>
 
     <androidx.appcompat.widget.AppCompatButton
@@ -80,13 +155,17 @@
         android:layout_marginTop="32dp"
         android:background="@drawable/bg_rounded_card"
         android:elevation="6dp"
-        android:fontFamily="@font/diary_font"
+        android:fontFamily="@font/text"
         android:text="스티커 업로드"
         android:textColor="#FF9E9E"
-        android:textSize="36sp"
+        android:textSize="30sp"
         app:layout_constraintTop_toBottomOf="@id/ll_recent_stickers"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:shadowColor="#40000000"
+        android:shadowDx="10"
+        android:shadowDy="4"
+        android:shadowRadius="10"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_vault"
@@ -95,14 +174,18 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/bg_rounded_card"
         android:elevation="6dp"
-        android:fontFamily="@font/diary_font"
+        android:fontFamily="@font/text"
         android:gravity="center"
         android:lineSpacingExtra="5dp"
         android:text="스티커\n보관함"
         android:textColor="#FFC47E"
-        android:textSize="50sp"
+        android:textSize="40sp"
         app:layout_constraintTop_toBottomOf="@id/btn_upload"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:shadowColor="#40000000"
+        android:shadowDx="10"
+        android:shadowDy="4"
+        android:shadowRadius="10"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
