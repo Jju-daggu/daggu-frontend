@@ -4,14 +4,12 @@ plugins {
 
 android {
     namespace 'com.example.daggumaker'
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.daggumaker"
         minSdk 24
-        targetSdk 36
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -25,17 +23,34 @@ android {
         }
     }
     compileOptions {
+        // Java 11 환경에서 AI 라이브러리가 가장 잘 돌아갑니다.
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
 }
 
 dependencies {
+    // 안드로이드 기본 라이브러리
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
+
+    // 테스트용 라이브러리
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+    // ✅ [필수] Google AI SDK (Gemini 연동용)
+    implementation 'com.google.ai.client.generativeai:generativeai:0.9.0'
+    implementation 'com.google.guava:guava:31.1-android'
+
+    // ✅ [핵심] Replicate AI 서버와 통신하기 위한 OkHttp
+    // 버전 4.12.0은 안정성이 매우 높습니다.
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // ✅ [핵심] AI가 그린 이미지를 화면에 띄워주는 Glide
+    // 이미지 변환 후 ImageView에 즉시 반영하기 위해 필수입니다.
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 }

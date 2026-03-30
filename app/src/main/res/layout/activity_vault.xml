@@ -4,17 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_paper"
     tools:context=".VaultActivity">
 
-    <!-- Top Bar -->
+    <ImageView
+        android:id="@+id/iv_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_diary_pattern"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/btn_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/bg_rounded_button"
+        android:fontFamily="@font/memoment_kkukkukk"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         android:text="뒤로가기"
@@ -27,60 +37,96 @@
         android:id="@+id/tv_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/memoment_kkukkukk"
         android:text="스티커 보관함"
-        android:textColor="@color/black"
-        android:textSize="20sp"
+        android:textColor="#5D4037"
+        android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/btn_back" />
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="다꾸메이커"
-        android:textColor="@color/black"
-        android:textSize="36sp"
-        android:textStyle="bold"
+    <View
+        android:id="@+id/view_underline"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:background="#D2B48C"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_back" />
 
-    <TextView
-        android:id="@+id/tv_view_calendar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        android:text="전체보기 >"
-        android:textColor="@color/text_main"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title" />
-
-    <LinearLayout
-        android:id="@+id/ll_vault"
-        android:layout_width="match_parent"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_vault_container"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/bg_rounded_card"
-        android:gravity="center"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="30dp"
+        app:cardBackgroundColor="#FFF9E1"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_view_calendar">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_underline">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="저장된\n스티커\n좌르륵"
-            android:textColor="@color/text_main"
-            android:textSize="48sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+        <ScrollView
+            android:id="@+id/sv_vault"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:id="@+id/layout_new_stickers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
+                        <ImageView android:id="@+id/iv_new_1" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" />
+                        <ImageView android:id="@+id/iv_new_2" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
+                        <ImageView android:id="@+id/iv_new_3" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" />
+                        <ImageView android:id="@+id/iv_new_4" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
+                        <ImageView android:id="@+id/iv_new_5" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" />
+                        <View android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#D2B48C" android:layout_marginVertical="10dp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
+                    <ImageView android:id="@+id/iv_vault_1" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" android:src="@drawable/s4" />
+                    <ImageView android:id="@+id/iv_vault_2" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" android:src="@drawable/s3" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
+                    <ImageView android:id="@+id/iv_vault_3" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" android:src="@drawable/s2" />
+                    <ImageView android:id="@+id/iv_vault_4" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" android:src="@drawable/s1" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
+                    <ImageView android:id="@+id/iv_vault_5" android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" android:scaleType="fitCenter" android:src="@drawable/s0" />
+                    <View android:layout_width="0dp" android:layout_height="180dp" android:layout_margin="8dp" android:layout_weight="1" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
