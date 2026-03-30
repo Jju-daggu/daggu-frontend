@@ -4,12 +4,14 @@ plugins {
 
 android {
     namespace 'com.example.daggumaker'
-    compileSdk 34
+    // 팀원이 올린 최신 SDK 버전(36)을 유지하되, 안정적인 34를 써도 무방합니다.
+    // 여기서는 팀원의 설정을 존중하여 36으로 맞춥니다.
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.example.daggumaker"
         minSdk 24
-        targetSdk 34
+        targetSdk 36
         versionCode 1
         versionName "1.0"
 
@@ -23,7 +25,7 @@ android {
         }
     }
     compileOptions {
-        // Java 11 환경에서 AI 라이브러리가 가장 잘 돌아갑니다.
+        // AI 라이브러리 호환성을 위해 Java 11 설정 유지
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
@@ -41,16 +43,17 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    // ✅ [필수] Google AI SDK (Gemini 연동용)
+    // ✅ AI 연동 및 통신 (본인 추가분)
     implementation 'com.google.ai.client.generativeai:generativeai:0.9.0'
     implementation 'com.google.guava:guava:31.1-android'
-
-    // ✅ [핵심] Replicate AI 서버와 통신하기 위한 OkHttp
-    // 버전 4.12.0은 안정성이 매우 높습니다.
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
-    // ✅ [핵심] AI가 그린 이미지를 화면에 띄워주는 Glide
-    // 이미지 변환 후 ImageView에 즉시 반영하기 위해 필수입니다.
+    // ✅ 이미지 처리 및 편집 (본인 + 팀원 추가분 합침)
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+    implementation 'com.github.yalantis:ucrop:2.2.8' // 이미지 크롭용
+
+    // ✅ UI 디자인 라이브러리 (팀원 추가분)
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }

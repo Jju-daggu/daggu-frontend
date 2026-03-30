@@ -4,10 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_paper"
+    android:background="@drawable/paper"
     tools:context=".CalendarActivity">
 
-    <!-- Top Bar -->
     <TextView
         android:id="@+id/btn_back"
         android:layout_width="wrap_content"
@@ -18,7 +17,8 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         android:text="뒤로가기"
-        android:textColor="@color/text_main"
+        android:fontFamily="@font/diary_font"
+        android:textColor="#707070"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -28,162 +28,137 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="캘린더"
+        android:fontFamily="@font/diary_font"
         android:textColor="@color/black"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/btn_back" />
 
     <View
-        android:id="@+id/divider_top"
+        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="16dp"
-        android:background="@color/bg_card_stroke"
+        android:background="#DDDDDD"
         app:layout_constraintTop_toBottomOf="@id/btn_back" />
 
-    <!-- Calendar Header -->
     <TextView
         android:id="@+id/tv_month"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:text="3월"
-        android:textColor="@color/text_main"
-        android:textSize="48sp"
-        android:textStyle="bold"
+        android:fontFamily="@font/diary_font"
+        android:textColor="#333333"
+        android:textSize="60sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/divider_top" />
+        app:layout_constraintTop_toBottomOf="@id/divider" />
 
-    <!-- Calendar Grid Mockup -->
-    <!-- Represented as an ImageView placeholder or a simple layout since creating a 7x5 table in xml takes hundreds of lines. We will build a simplified grid -->
     <LinearLayout
-        android:id="@+id/calendar_grid"
+        android:id="@+id/ll_calendar_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/bg_rounded_card"
+        android:elevation="4dp"
         android:orientation="vertical"
-        android:padding="8dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/cl_detail_box"
         app:layout_constraintTop_toBottomOf="@id/tv_month">
 
-        <!-- Header Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="월" />
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="화" />
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="수" />
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="목" />
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="금" />
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="토" />
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="일" />
+            android:orientation="horizontal"
+            android:paddingHorizontal="4dp"
+            android:paddingBottom="8dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="월" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="화" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="수" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="목" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="금" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="토" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="일" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
         </LinearLayout>
-        
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/bg_card_stroke" android:layout_marginVertical="4dp"/>
 
-        <!-- Row 1 -->
-        <LinearLayout
+        <GridView
+            android:id="@+id/gv_calendar"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal">
-            <!-- Col 1 -->
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1" />
-                <View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_blue" />
-            </LinearLayout>
-            <!-- Col 2 -->
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2" />
-                <View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_red" />
-            </LinearLayout>
-            <!-- Other columns left empty for brevity in prototype -->
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_orange" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_green" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_red" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_orange" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="7" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_blue" /></LinearLayout>
-        </LinearLayout>
-
-        <!-- Repeat for Row 2... -->
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/bg_card_stroke" android:layout_marginVertical="4dp"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal">
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="8" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_green" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="9" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_orange" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_red" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="11" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_blue" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_green" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="13" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_orange" /></LinearLayout>
-            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="14" /><View android:layout_width="30dp" android:layout_height="30dp" android:background="@drawable/bg_circle_red" /></LinearLayout>
-        </LinearLayout>
-        <!-- Additional rows omitted for prototype brevity, we'll imagine it's scrollable or fits nicely -->
+            android:layout_height="match_parent"
+            android:numColumns="7"
+            android:verticalSpacing="0dp"
+            android:horizontalSpacing="0dp"
+            android:stretchMode="columnWidth"
+            android:gravity="center"
+            android:listSelector="@android:color/transparent"/>
     </LinearLayout>
 
-    <!-- Bottom Daily details -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_detail_box"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/bg_rounded_card"
-        app:layout_constraintTop_toBottomOf="@id/calendar_grid"
+        android:elevation="4dp"
+        android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
-            android:id="@+id/tv_day_selected"
+            android:id="@+id/tv_selected_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/diary_font"
             android:text="2일"
-            android:textColor="@color/black"
+            android:textColor="#000000"
             android:textSize="20sp"
-            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="8dp"
+            android:id="@+id/v_detail_emotion"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="4dp"
             android:background="@drawable/bg_circle_red"
-            app:layout_constraintEnd_toEndOf="@id/tv_day_selected"
-            app:layout_constraintStart_toStartOf="@id/tv_day_selected"
-            app:layout_constraintTop_toBottomOf="@id/tv_day_selected" />
+            app:layout_constraintEnd_toEndOf="@id/tv_selected_day"
+            app:layout_constraintStart_toStartOf="@id/tv_selected_day"
+            app:layout_constraintTop_toBottomOf="@id/tv_selected_day" />
 
         <TextView
-            android:id="@+id/tv_keyword_title"
+            android:id="@+id/tv_keyword_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:text="키워드"
-            android:textColor="@color/black"
+            android:fontFamily="@font/diary_font"
+            android:textColor="#000000"
             android:textSize="24sp"
-            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/tv_keywords"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tv_day_selected"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toEndOf="@id/v_detail_emotion"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
+            android:id="@+id/tv_keywords"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="6dp"
             android:text="카페, 친구, 데이트"
-            android:textColor="@color/text_main"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tv_day_selected"
-            app:layout_constraintTop_toBottomOf="@id/tv_keyword_title" />
+            android:fontFamily="@font/diary_font"
+            android:textColor="#707070"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/tv_keyword_label"
+            app:layout_constraintStart_toStartOf="@id/tv_keyword_label"
+            app:layout_constraintTop_toBottomOf="@id/tv_keyword_label" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
