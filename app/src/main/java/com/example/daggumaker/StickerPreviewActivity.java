@@ -3,7 +3,6 @@ package com.example.daggumaker;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,7 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -73,29 +71,53 @@ public class StickerPreviewActivity extends AppCompatActivity {
         if (btnPolaroid != null) btnPolaroid.setOnClickListener(v -> startStyleChange("polaroid style"));
         if (btnPixel != null) btnPixel.setOnClickListener(v -> startStyleChange("pixel art style"));
 
-        // [3] 상단 버튼들 (뒤로가기 & 메인)
+        // [3] 상단 버튼들
         TextView btnBack = findViewById(R.id.btn_back);
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
-        // ⭐ 여기에 메인 버튼 기능을 넣었습니다! ⭐
         TextView btnMain = findViewById(R.id.btn_main);
         if (btnMain != null) {
             btnMain.setOnClickListener(v -> {
-                // MainActivity로 이동하는 명령
-                Intent intent = new Intent(StickerPreviewActivity.this, MainActivity.class);
-                // 기존에 쌓여있던 화면들을 싹 정리하고 메인으로 깔끔하게 이동합니다.
+                Intent intent = new Intent(this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
-                finish(); // 현재 미리보기 화면은 닫기
+                finish();
             });
         }
 
-        // [4] 하단 액션 버튼들 (배치 등)
+        // [4] 하단 액션 버튼들
         LinearLayout btnPlace = findViewById(R.id.btn_place);
         if (btnPlace != null) btnPlace.setOnClickListener(v -> startActivity(new Intent(this, PlacementActivity.class)));
+
+        // ⭐ 보관 버튼: 수정됨
+        LinearLayout btnStore = findViewById(R.id.btn_store);
+        if (btnStore != null) {
+            btnStore.setOnClickListener(v -> {
+                ArrayList<String> stickerUris = getStickerUriList();
+                if (!stickerUris.isEmpty()) {
+                    Intent intent = new Intent(StickerPreviewActivity.this, VaultActivity.class);
+                    // VaultActivity에서 받는 키값 "sticker_uri_list"로 통일!
+                    intent.putStringArrayListExtra("sticker_uri_list", stickerUris);
+                    startActivity(intent);
+                    Toast.makeText(this, "갤러리와 보관함에 저장되었습니다!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "저장할 스티커가 아직 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        // ⭐ 프린트 버튼: 수정됨 (데이터 전달 포함)
+        LinearLayout btnPrint = findViewById(R.id.btn_print);
+        if (btnPrint != null) {
+            btnPrint.setOnClickListener(v -> {
+                ArrayList<String> stickerUris = getStickerUriList();
+                Intent intent = new Intent(this, PrintActivity.class);
+                intent.putStringArrayListExtra("sticker_uri_list", stickerUris);
+                startActivity(intent);
+            });
+        }
     }
 
-    // --- 아래 AI 관련 및 저장 메서드들은 민하님 기존 코드와 동일합니다 ---
     private void startStyleChange(String style) {
         Toast.makeText(this, "스타일 변환 중...", Toast.LENGTH_SHORT).show();
         for (int i = 0; i < ivStickers.length; i++) {
@@ -130,8 +152,7 @@ public class StickerPreviewActivity extends AppCompatActivity {
                     .build();
 
             client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {}
+                @Override public void onFailure(Call call, IOException e) {}
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     if (response.isSuccessful()) {
@@ -165,37 +186,47 @@ public class StickerPreviewActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {}
             }
-            @Override
-            public void onFailure(Call call, IOException e) {}
+            @Override public void onFailure(Call call, IOException e) {}
         });
     }
 
     private ArrayList<String> getStickerUriList() {
         ArrayList<String> uriList = new ArrayList<>();
-        int[] ids = {R.drawable.s5, R.drawable.s6, R.drawable.s7, R.drawable.s8, R.drawable.s9};
-        for (int i = 0; i < ids.length; i++) {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), ids[i]);
-            if (bitmap != null) {
-                Uri uri = saveToGallery(bitmap, "Daku_" + i);
+        for (int i = 0; i < ivStickers.length; i++) {
+            if (ivStickers[i].getDrawable() instanceof BitmapDrawable) {
+                Bitmap bitmap = ((BitmapDrawable) ivStickers[i].getDrawable()).getBitmap();
+                // 타임스탬프를 추가하여 파일명이 중복되지 않게 저장
+                Uri uri = saveToGallery(bitmap, "DakuSticker_" + System.currentTimeMillis() + "_" + i);
                 if (uri != null) uriList.add(uri.toString());
             }
         }
         return uriList;
     }
 
+    // ⭐ 갤러리 즉시 반영 로직 추가됨
     private Uri saveToGallery(Bitmap bitmap, String title) {
         try {
             ContentValues values = new ContentValues();
             values.put(MediaStore.MediaColumns.DISPLAY_NAME, title + ".png");
             values.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+            // Pictures/DakuMaker 폴더에 저장
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + "DakuMaker");
+
             Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
             if (uri != null) {
                 OutputStream os = getContentResolver().openOutputStream(uri);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
                 os.close();
+
+                // 🌟 [핵심] 시스템에 미디어 스캔 요청을 보내서 갤러리에 바로 나타나게 함
+                Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                scanIntent.setData(uri);
+                sendBroadcast(scanIntent);
             }
             return uri;
-        } catch (Exception e) { return null; }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

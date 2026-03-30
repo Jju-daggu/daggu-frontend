@@ -6,20 +6,20 @@
     android:layout_height="match_parent"
     android:background="@drawable/paper"
     tools:context=".CalendarActivity">
-
+ㄴ
     <TextView
         android:id="@+id/btn_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
         android:background="@drawable/bg_rounded_button"
+        android:fontFamily="@font/diary_font"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         android:text="뒤로가기"
-        android:fontFamily="@font/diary_font"
         android:textColor="#707070"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,10 +27,10 @@
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="캘린더"
         android:fontFamily="@font/diary_font"
+        android:text="캘린더"
         android:textColor="@color/black"
-        android:textSize="24sp"
+        android:textSize="22sp"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +40,7 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:background="#DDDDDD"
         app:layout_constraintTop_toBottomOf="@id/btn_back" />
 
@@ -48,9 +48,9 @@
         android:id="@+id/tv_month"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="3월"
+        android:layout_marginTop="50dp"
         android:fontFamily="@font/diary_font"
+        android:text="3월"
         android:textColor="#333333"
         android:textSize="60sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,29 +61,30 @@
         android:id="@+id/ll_calendar_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginTop="30dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_rounded_card"
         android:elevation="4dp"
         android:orientation="vertical"
-        android:padding="5dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="15dp"
         app:layout_constraintBottom_toTopOf="@+id/cl_detail_box"
         app:layout_constraintTop_toBottomOf="@id/tv_month">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:orientation="horizontal"
-            android:paddingHorizontal="4dp"
-            android:paddingBottom="8dp">
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="월" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="화" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="수" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="목" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="금" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="토" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="일" android:fontFamily="@font/diary_font" android:textSize="12sp"/>
+            android:weightSum="7">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="월" android:fontFamily="@font/diary_font" android:textSize="12sp" android:textColor="#5D4037"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="화" android:fontFamily="@font/diary_font" android:textSize="12sp" android:textColor="#5D4037"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="수" android:fontFamily="@font/diary_font" android:textSize="12sp" android:textColor="#5D4037"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="목" android:fontFamily="@font/diary_font" android:textSize="12sp" android:textColor="#5D4037"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="금" android:fontFamily="@font/diary_font" android:textSize="12sp" android:textColor="#5D4037"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="토" android:fontFamily="@font/diary_font" android:textSize="12sp" android:textColor="#5D4037"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="일" android:fontFamily="@font/diary_font" android:textSize="12sp" android:textColor="#5D4037"/>
         </LinearLayout>
 
         <GridView
@@ -102,12 +103,13 @@
         android:id="@+id/cl_detail_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginBottom="30dp"
         android:background="@drawable/bg_rounded_card"
         android:elevation="4dp"
         android:paddingBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_calendar_container">
 
         <TextView
             android:id="@+id/tv_selected_day"
@@ -117,7 +119,7 @@
             android:layout_marginTop="12dp"
             android:fontFamily="@font/diary_font"
             android:text="2일"
-            android:textColor="#000000"
+            android:textColor="#3E2723"
             android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -136,10 +138,11 @@
             android:id="@+id/tv_keyword_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="키워드"
             android:fontFamily="@font/diary_font"
-            android:textColor="#000000"
+            android:text="키워드"
+            android:textColor="#3E2723"
             android:textSize="24sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/tv_keywords"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/v_detail_emotion"
@@ -151,10 +154,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="카페, 친구, 데이트"
             android:fontFamily="@font/diary_font"
-            android:textColor="#707070"
-            android:textSize="16sp"
+            android:text="카페, 친구, 데이트"
+            android:textColor="#5D4037"
+            android:textSize="27sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/tv_keyword_label"
             app:layout_constraintStart_toStartOf="@id/tv_keyword_label"

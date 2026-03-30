@@ -16,6 +16,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
+        // ✅ [추가] JitPack 저장소
+        // uCrop이나 Glide 같은 외부 라이브러리를 내려받기 위해 필수입니다.
+        maven { url 'https://jitpack.io' }
     }
 }
 

@@ -36,6 +36,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title" />
 
+    <!-- 최근 스티커 4개 영역 -->
     <LinearLayout
         android:id="@+id/ll_recent_stickers"
         android:layout_width="match_parent"
@@ -46,6 +47,7 @@
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/tv_view_calendar">
 
+        <!-- 카드 1 -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="120dp"
@@ -55,6 +57,7 @@
             android:gravity="center"
             android:orientation="vertical"
             android:elevation="4dp">
+
             <TextView
                 android:id="@+id/tv_date_1"
                 android:layout_width="wrap_content"
@@ -63,6 +66,7 @@
                 android:text="18"
                 android:textColor="#333333"
                 android:textSize="24sp" />
+
             <View
                 android:id="@+id/iv_emotion_1"
                 android:layout_width="40dp"
@@ -70,6 +74,91 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_circle_red" />
         </LinearLayout>
+
+        <!-- 카드 2 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:background="@drawable/bg_rounded_card"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="4dp">
+
+            <TextView
+                android:id="@+id/tv_date_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/diary_font"
+                android:text="17"
+                android:textColor="#333333"
+                android:textSize="24sp" />
+
+            <View
+                android:id="@+id/iv_emotion_2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_circle_red" />
+        </LinearLayout>
+
+        <!-- 카드 3 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:background="@drawable/bg_rounded_card"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="4dp">
+
+            <TextView
+                android:id="@+id/tv_date_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/diary_font"
+                android:text="16"
+                android:textColor="#333333"
+                android:textSize="24sp" />
+
+            <View
+                android:id="@+id/iv_emotion_3"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_circle_red" />
+        </LinearLayout>
+
+        <!-- 카드 4 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:background="@drawable/bg_rounded_card"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="4dp">
+
+            <TextView
+                android:id="@+id/tv_date_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/diary_font"
+                android:text="15"
+                android:textColor="#333333"
+                android:textSize="24sp" />
+
+            <View
+                android:id="@+id/iv_emotion_4"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_circle_red" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <androidx.appcompat.widget.AppCompatButton
