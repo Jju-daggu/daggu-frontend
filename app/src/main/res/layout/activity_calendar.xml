@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/paper"
     tools:context=".CalendarActivity">
-ㄴ
+
     <TextView
         android:id="@+id/btn_back"
         android:layout_width="wrap_content"
@@ -15,11 +15,11 @@
         android:layout_marginTop="30dp"
         android:background="@drawable/bg_rounded_button"
         android:fontFamily="@font/diary_font"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="6dp"
         android:text="뒤로가기"
         android:textColor="#707070"
-        android:textSize="14sp"
+        android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,7 +30,7 @@
         android:fontFamily="@font/diary_font"
         android:text="캘린더"
         android:textColor="@color/black"
-        android:textSize="22sp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,21 +48,20 @@
         android:id="@+id/tv_month"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:fontFamily="@font/diary_font"
         android:text="3월"
         android:textColor="#333333"
-        android:textSize="60sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="55sp" app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider" />
 
     <LinearLayout
         android:id="@+id/ll_calendar_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="25dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_rounded_card"
         android:elevation="4dp"
@@ -70,7 +69,8 @@
         android:paddingHorizontal="10dp"
         android:paddingVertical="15dp"
         app:layout_constraintBottom_toTopOf="@+id/cl_detail_box"
-        app:layout_constraintTop_toBottomOf="@id/tv_month">
+        app:layout_constraintTop_toBottomOf="@id/tv_month"
+        app:layout_constraintVertical_bias="0.0">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -90,7 +90,7 @@
         <GridView
             android:id="@+id/gv_calendar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:numColumns="7"
             android:verticalSpacing="0dp"
             android:horizontalSpacing="0dp"
@@ -103,9 +103,7 @@
         android:id="@+id/cl_detail_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="25dp"
-        android:layout_marginBottom="30dp"
-        android:background="@drawable/bg_rounded_card"
+        android:layout_marginHorizontal="25dp" android:layout_marginBottom="30dp" android:background="@drawable/bg_rounded_card"
         android:elevation="4dp"
         android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -120,14 +118,12 @@
             android:fontFamily="@font/diary_font"
             android:text="2일"
             android:textColor="#3E2723"
-            android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textSize="20sp" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
             android:id="@+id/v_detail_emotion"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp" android:layout_height="45dp"
             android:layout_marginTop="4dp"
             android:background="@drawable/bg_circle_red"
             app:layout_constraintEnd_toEndOf="@id/tv_selected_day"
@@ -141,8 +137,7 @@
             android:fontFamily="@font/diary_font"
             android:text="키워드"
             android:textColor="#3E2723"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            android:textSize="22sp" android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/tv_keywords"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/v_detail_emotion"
@@ -153,12 +148,11 @@
             android:id="@+id/tv_keywords"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="4dp"
             android:fontFamily="@font/diary_font"
             android:text="카페, 친구, 데이트"
             android:textColor="#5D4037"
-            android:textSize="27sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textSize="24sp" app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/tv_keyword_label"
             app:layout_constraintStart_toStartOf="@id/tv_keyword_label"
             app:layout_constraintTop_toBottomOf="@id/tv_keyword_label" />

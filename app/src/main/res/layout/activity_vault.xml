@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/bg_rounded_button"
         android:fontFamily="@font/memoment_kkukkukk"
         android:paddingHorizontal="16dp"
@@ -44,8 +44,10 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.709"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/btn_back" />
+        app:layout_constraintTop_toTopOf="@id/btn_back"
+        app:layout_constraintVertical_bias="0.0" />
 
     <View
         android:id="@+id/view_underline"
