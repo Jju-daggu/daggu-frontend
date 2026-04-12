@@ -20,13 +20,17 @@ public class AnalysisActivity extends AppCompatActivity {
         // 1. 뷰 연결
         View btnBack = findViewById(R.id.btn_back);
         View btnMain = findViewById(R.id.btn_main);
-        View btnSubmit = findViewById(R.id.cv_analysis); // XML에 있는 버튼 ID 사용
+        View btnSubmit = findViewById(R.id.cv_analysis); 
         etExtractedText = findViewById(R.id.et_extracted_text);
 
-        // 2. 뒤로가기 버튼
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
+        // [추가] UploadActivity로부터 전달받은 OCR 텍스트 설정
+        String initialText = getIntent().getStringExtra("extracted_text");
+        if (initialText != null && etExtractedText != null) {
+            etExtractedText.setText(initialText);
         }
+
+        // 2. 뒤로가기 버튼
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
         // 3. 메인 버튼
         if (btnMain != null) {
@@ -38,31 +42,13 @@ public class AnalysisActivity extends AppCompatActivity {
             });
         }
 
-        // 4. 분석 버튼 클릭 → 결과 화면 이동
+        // 4. 분석 버튼 클릭 → ResultActivity로 이동 (텍스트 전달)
         if (btnSubmit != null) {
             btnSubmit.setOnClickListener(v -> {
-                try {
-
-                    // 사용자가 수정한 텍스트 가져오기
-                    String finalExtractedText = "";
-                    if (etExtractedText != null) {
-                        finalExtractedText = etExtractedText.getText().toString();
-                    }
-
-                    // ResultActivity로 데이터 전달
-                    Intent intent = new Intent(AnalysisActivity.this, ResultActivity.class);
-                    intent.putExtra("edited_text", finalExtractedText);
-
-                    startActivity(intent);
-
-                } catch (Exception e) {
-                    Toast.makeText(
-                            AnalysisActivity.this,
-                            "화면 전환 오류: " + e.getMessage(),
-                            Toast.LENGTH_SHORT
-                    ).show();
-                    e.printStackTrace();
-                }
+                String finalText = etExtractedText.getText().toString();
+                Intent intent = new Intent(AnalysisActivity.this, ResultActivity.class);
+                intent.putExtra("final_text", finalText);
+                startActivity(intent);
             });
         }
     }

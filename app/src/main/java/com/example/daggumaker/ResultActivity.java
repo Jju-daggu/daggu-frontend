@@ -3,8 +3,11 @@ package com.example.daggumaker;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView; // TextView 사용을 위해 추가
+import android.widget.TextView;
+import android.widget.Toast;
+import android.graphics.Color;
 import androidx.appcompat.app.AppCompatActivity;
+import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
 
@@ -13,38 +16,68 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
+        // 1. 뷰 연결
+        TextView tvExtractedRes = findViewById(R.id.tv_extracted_text_result);
+        TextView tvSentimentRes = findViewById(R.id.tv_sentiment_result);
+        TextView tvKeywordsRes = findViewById(R.id.tv_keywords_result);
         View btnBack = findViewById(R.id.btn_back);
         View btnMain = findViewById(R.id.btn_main);
         View cvSticker = findViewById(R.id.cv_generate_sticker);
 
-        // 1. 뒤로가기
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
+        // 2. 데이터 수신 및 분석
+        String finalText = getIntent().getStringExtra("final_text");
+        if (finalText != null) {
+            if (tvExtractedRes != null) tvExtractedRes.setText(finalText);
+
+            // 분석기 실행 (백그라운드 권장이나 로직의 단순함을 위해 현재는 메인에서 처리)
+            try {
+                SentimentAnalyzer analyzer = new SentimentAnalyzer(this);
+                
+                // 감정 분석
+                int score = analyzer.analyzeSentiment(finalText);
+                String sentimentStr;
+                if (score > 0) {
+                    sentimentStr = "오늘 기분은 아주 좋아요! ☀️ (+" + score + ")";
+                    tvSentimentRes.setTextColor(Color.parseColor("#4CAF50"));
+                } else if (score < 0) {
+                    sentimentStr = "조금 우울한 날일까요? ☁️ (" + score + ")";
+                    tvSentimentRes.setTextColor(Color.parseColor("#F44336"));
+                } else {
+                    sentimentStr = "평온한 하루였네요. 🍃";
+                    tvSentimentRes.setTextColor(Color.parseColor("#7A5C46"));
+                }
+                if (tvSentimentRes != null) tvSentimentRes.setText(sentimentStr);
+
+                // 키워드 추출
+                List<String> keywords = analyzer.extractKeywords(finalText);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < Math.min(keywords.size(), 3); i++) {
+                    sb.append("#").append(keywords.get(i)).append(" ");
+                }
+                if (tvKeywordsRes != null) {
+                    tvKeywordsRes.setText(sb.length() > 0 ? sb.toString() : "#일상 #기록");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "분석 중 오류 발생", Toast.LENGTH_SHORT).show();
+            }
         }
 
-        // 2. 메인으로 (스택 정리)
+        // 3. 버튼 리스너
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
         if (btnMain != null) {
             btnMain.setOnClickListener(v -> {
-                Intent intent = new Intent(ResultActivity.this, MainActivity.class);
+                Intent intent = new Intent(this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 finish();
             });
         }
-
-        // 3. 스티커 생성 버튼 클릭 시 (미리보기 화면으로 이동)
         if (cvSticker != null) {
             cvSticker.setOnClickListener(v -> {
-                // StickerPreviewActivity로 이동하는 Intent 생성
-                Intent intent = new Intent(ResultActivity.this, StickerPreviewActivity.class);
-
-                // (선택사항) 만약 분석된 텍스트나 키워드를 다음 화면에 전달하고 싶다면 아래처럼 작성하세요.
-                // intent.putExtra("key", "value");
-
+                Intent intent = new Intent(this, StickerPreviewActivity.class);
                 startActivity(intent);
-
-                // 화면 전환 애니메이션을 넣고 싶다면 (커스텀 애니메이션이 있을 경우)
-                // overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             });
         }
     }

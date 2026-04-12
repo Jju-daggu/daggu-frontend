@@ -41,7 +41,7 @@ import okhttp3.Response;
 public class StickerPreviewActivity extends AppCompatActivity {
 
     private ImageView[] ivStickers = new ImageView[5];
-    private final String REPLICATE_API_KEY = "여기에_토큰을_넣으세요";
+    private final String REPLICATE_API_KEY = BuildConfig.REPLICATE_API_KEY;
 
     private OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(60, TimeUnit.SECONDS)
@@ -119,6 +119,12 @@ public class StickerPreviewActivity extends AppCompatActivity {
     }
 
     private void startStyleChange(String style) {
+        // 🛡️ API 키 사용 여부 체크
+        if (REPLICATE_API_KEY == null || REPLICATE_API_KEY.isEmpty() || REPLICATE_API_KEY.equals("\"\"")) {
+            Toast.makeText(this, "AI 스타일 변환 기능이 비활성화되어 있습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Toast.makeText(this, "스타일 변환 중...", Toast.LENGTH_SHORT).show();
         for (int i = 0; i < ivStickers.length; i++) {
             final int index = i;
