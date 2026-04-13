@@ -103,7 +103,9 @@
         android:id="@+id/cl_detail_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="25dp" android:layout_marginBottom="30dp" android:background="@drawable/bg_rounded_card"
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/bg_rounded_card"
         android:elevation="4dp"
         android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -118,12 +120,14 @@
             android:fontFamily="@font/diary_font"
             android:text="2일"
             android:textColor="#3E2723"
-            android:textSize="20sp" app:layout_constraintStart_toStartOf="parent"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
             android:id="@+id/v_detail_emotion"
-            android:layout_width="45dp" android:layout_height="45dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginTop="4dp"
             android:background="@drawable/bg_circle_red"
             app:layout_constraintEnd_toEndOf="@id/tv_selected_day"
@@ -137,7 +141,8 @@
             android:fontFamily="@font/diary_font"
             android:text="키워드"
             android:textColor="#3E2723"
-            android:textSize="22sp" android:textStyle="bold"
+            android:textSize="22sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/tv_keywords"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/v_detail_emotion"
@@ -146,15 +151,17 @@
 
         <TextView
             android:id="@+id/tv_keywords"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
             android:fontFamily="@font/diary_font"
-            android:text="카페, 친구, 데이트"
+            android:gravity="center"
             android:textColor="#5D4037"
-            android:textSize="24sp" app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/tv_keyword_label"
-            app:layout_constraintStart_toStartOf="@id/tv_keyword_label"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/v_detail_emotion"
             app:layout_constraintTop_toBottomOf="@id/tv_keyword_label" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

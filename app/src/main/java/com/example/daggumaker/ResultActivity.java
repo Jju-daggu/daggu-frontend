@@ -4,14 +4,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ResultActivity extends AppCompatActivity {
@@ -42,6 +46,9 @@ public class ResultActivity extends AppCompatActivity {
             learnKeywords(currentKeywords);
             List<String> topKeywords = getTopGlobalKeywords(3);
             updateUI(score, topKeywords, tvSentimentRes, tvKeywordsRes);
+
+            // ✨ [추가] 추출된 현재 키워드를 해당 날짜 기준으로 덮어쓰기/저장
+            saveDailyKeywords(currentKeywords);
         }
 
         if (btnMain != null) btnMain.setOnClickListener(v -> finish());
@@ -58,6 +65,23 @@ public class ResultActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+    }
+
+    // ✨ [추가] 날짜별 키워드를 저장하는 메서드
+    private void saveDailyKeywords(List<String> keywords) {
+        SharedPreferences dailyPrefs = getSharedPreferences("DailyKeywordMemory", MODE_PRIVATE);
+        SharedPreferences.Editor editor = dailyPrefs.edit();
+
+        // 1. 기준이 될 날짜 생성 (예: "2026-04-13")
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
+        String todayDate = sdf.format(new Date());
+
+        // 2. 리스트 형태의 키워드를 하나의 문자열로 변환 (예: "일상, 기록, 공부")
+        String keywordString = TextUtils.join(", ", keywords);
+
+        // 3. 날짜를 Key로 하여 저장 (같은 날짜면 자동으로 덮어씌워짐 = 일기 수정 시 키워드도 변경됨)
+        editor.putString(todayDate, keywordString);
+        editor.apply();
     }
 
     private void learnKeywords(List<String> keywords) {
