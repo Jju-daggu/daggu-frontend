@@ -86,17 +86,23 @@ public class StickerPreviewActivity extends AppCompatActivity {
         }
 
         // [4] 하단 액션 버튼들
+        // 🌟 [수정] 배치 화면 이동 시 이미지 경로 전달
         LinearLayout btnPlace = findViewById(R.id.btn_place);
-        if (btnPlace != null) btnPlace.setOnClickListener(v -> startActivity(new Intent(this, PlacementActivity.class)));
+        if (btnPlace != null) {
+            btnPlace.setOnClickListener(v -> {
+                Intent intent = new Intent(StickerPreviewActivity.this, PlacementActivity.class);
+                intent.putExtra("diary_image_uri", getIntent().getStringExtra("diary_image_uri"));
+                startActivity(intent);
+            });
+        }
 
-        // ⭐ 보관 버튼: 수정됨
+        // ⭐ 보관 버튼
         LinearLayout btnStore = findViewById(R.id.btn_store);
         if (btnStore != null) {
             btnStore.setOnClickListener(v -> {
                 ArrayList<String> stickerUris = getStickerUriList();
                 if (!stickerUris.isEmpty()) {
                     Intent intent = new Intent(StickerPreviewActivity.this, VaultActivity.class);
-                    // VaultActivity에서 받는 키값 "sticker_uri_list"로 통일!
                     intent.putStringArrayListExtra("sticker_uri_list", stickerUris);
                     startActivity(intent);
                     Toast.makeText(this, "갤러리와 보관함에 저장되었습니다!", Toast.LENGTH_SHORT).show();
@@ -106,7 +112,7 @@ public class StickerPreviewActivity extends AppCompatActivity {
             });
         }
 
-        // ⭐ 프린트 버튼: 수정됨 (데이터 전달 포함)
+        // 🌟 [ID 수정] btnPrint가 아니라 btn_print로 수정
         LinearLayout btnPrint = findViewById(R.id.btn_print);
         if (btnPrint != null) {
             btnPrint.setOnClickListener(v -> {
@@ -119,7 +125,6 @@ public class StickerPreviewActivity extends AppCompatActivity {
     }
 
     private void startStyleChange(String style) {
-        // 🛡️ API 키 사용 여부 체크
         if (REPLICATE_API_KEY == null || REPLICATE_API_KEY.isEmpty() || REPLICATE_API_KEY.equals("\"\"")) {
             Toast.makeText(this, "AI 스타일 변환 기능이 비활성화되어 있습니다.", Toast.LENGTH_SHORT).show();
             return;
@@ -201,7 +206,6 @@ public class StickerPreviewActivity extends AppCompatActivity {
         for (int i = 0; i < ivStickers.length; i++) {
             if (ivStickers[i].getDrawable() instanceof BitmapDrawable) {
                 Bitmap bitmap = ((BitmapDrawable) ivStickers[i].getDrawable()).getBitmap();
-                // 타임스탬프를 추가하여 파일명이 중복되지 않게 저장
                 Uri uri = saveToGallery(bitmap, "DakuSticker_" + System.currentTimeMillis() + "_" + i);
                 if (uri != null) uriList.add(uri.toString());
             }
@@ -209,13 +213,11 @@ public class StickerPreviewActivity extends AppCompatActivity {
         return uriList;
     }
 
-    // ⭐ 갤러리 즉시 반영 로직 추가됨
     private Uri saveToGallery(Bitmap bitmap, String title) {
         try {
             ContentValues values = new ContentValues();
             values.put(MediaStore.MediaColumns.DISPLAY_NAME, title + ".png");
             values.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
-            // Pictures/DakuMaker 폴더에 저장
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + "DakuMaker");
 
             Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
@@ -224,7 +226,6 @@ public class StickerPreviewActivity extends AppCompatActivity {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
                 os.close();
 
-                // 🌟 [핵심] 시스템에 미디어 스캔 요청을 보내서 갤러리에 바로 나타나게 함
                 Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                 scanIntent.setData(uri);
                 sendBroadcast(scanIntent);

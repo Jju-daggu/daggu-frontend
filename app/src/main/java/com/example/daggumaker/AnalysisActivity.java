@@ -20,7 +20,7 @@ public class AnalysisActivity extends AppCompatActivity {
         // 1. 뷰 연결
         View btnBack = findViewById(R.id.btn_back);
         View btnMain = findViewById(R.id.btn_main);
-        View btnSubmit = findViewById(R.id.cv_analysis); 
+        View btnSubmit = findViewById(R.id.cv_analysis);
         etExtractedText = findViewById(R.id.et_extracted_text);
 
         // [추가] UploadActivity로부터 전달받은 OCR 텍스트 설정
@@ -42,12 +42,18 @@ public class AnalysisActivity extends AppCompatActivity {
             });
         }
 
-        // 4. 분석 버튼 클릭 → ResultActivity로 이동 (텍스트 전달)
+        // 4. 분석 버튼 클릭 → ResultActivity로 이동 (텍스트 및 이미지 경로 전달)
         if (btnSubmit != null) {
             btnSubmit.setOnClickListener(v -> {
                 String finalText = etExtractedText.getText().toString();
                 Intent intent = new Intent(AnalysisActivity.this, ResultActivity.class);
+
+                // 수정된 텍스트 전달
                 intent.putExtra("final_text", finalText);
+
+                // ✨ [추가] 배달온 이미지 경로를 그대로 다음 화면(ResultActivity)으로 전달
+                intent.putExtra("diary_image_uri", getIntent().getStringExtra("diary_image_uri"));
+
                 startActivity(intent);
             });
         }

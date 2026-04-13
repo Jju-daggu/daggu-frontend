@@ -41,9 +41,12 @@ public class UploadActivity extends AppCompatActivity {
 
     private ImageView ivPreview;
     private TextView tvPreviewText;
-    private Bitmap selectedBitmap; // ✨ 선택된 이미지 저장용
+    private Bitmap selectedBitmap; // 선택된 이미지 저장용
     private View pbScanning;
     private View llScanBtnContent;
+
+    // ✨ [추가] 선택된 이미지의 위치(Uri)를 저장할 변수
+    private Uri selectedImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +63,11 @@ public class UploadActivity extends AppCompatActivity {
         takePictureLauncher = registerForActivityResult(
                 new ActivityResultContracts.TakePicture(),
                 result -> {
-                    if (result) { setPicFromFile(); }
+                    if (result) {
+                        // ✨ [추가] 촬영된 파일의 Uri 저장
+                        selectedImageUri = Uri.fromFile(new File(currentPhotoPath));
+                        setPicFromFile();
+                    }
                 }
         );
 
@@ -68,7 +75,11 @@ public class UploadActivity extends AppCompatActivity {
         pickMediaLauncher = registerForActivityResult(
                 new ActivityResultContracts.PickVisualMedia(),
                 uri -> {
-                    if (uri != null) { setPicFromUri(uri); }
+                    if (uri != null) {
+                        // ✨ [추가] 갤러리에서 선택된 Uri 저장
+                        selectedImageUri = uri;
+                        setPicFromUri(uri);
+                    }
                 }
         );
 
@@ -86,7 +97,7 @@ public class UploadActivity extends AppCompatActivity {
         View backBtn = findViewById(R.id.btn_back);
         if (backBtn != null) backBtn.setOnClickListener(v -> finish());
 
-        // ✨ '스캔하기' 버튼 클릭 시 Gemini OCR 실행
+        // '스캔하기' 버튼 클릭 시 Gemini OCR 실행
         View scanSubmitBtn = findViewById(R.id.cv_upload_submit);
         if (scanSubmitBtn != null) {
             scanSubmitBtn.setOnClickListener(v -> {
@@ -100,11 +111,11 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     /**
-     * ✨ Gemini API를 사용하여 OCR 수행
+     * Gemini API를 사용하여 OCR 수행
      */
     private void performOcr(Bitmap bitmap) {
         // 1. 이미지 리사이징 (용량 및 성능 최적화)
-        Bitmap resizedBitmap = getResizedBitmap(bitmap, 1024); // 최대 1024px로 리사이징
+        Bitmap resizedBitmap = getResizedBitmap(bitmap, 1024);
 
         // UI 상태 변경
         if (pbScanning != null) pbScanning.setVisibility(View.VISIBLE);
@@ -113,7 +124,7 @@ public class UploadActivity extends AppCompatActivity {
         // Gemini 모델 생성
         com.google.ai.client.generativeai.GenerativeModel gm = new com.google.ai.client.generativeai.GenerativeModel(
                 GEMINI_MODEL,
-                BuildConfig.GEMINI_API_KEY // 🛡️ BuildConfig에서 로드
+                BuildConfig.GEMINI_API_KEY
         );
 
         com.google.ai.client.generativeai.type.Content content = new com.google.ai.client.generativeai.type.Content.Builder()
@@ -122,10 +133,10 @@ public class UploadActivity extends AppCompatActivity {
                 .build();
 
         // 비동기 실행 (Java용 GenerativeModelFutures 활용)
-        com.google.ai.client.generativeai.java.GenerativeModelFutures modelFutures = 
+        com.google.ai.client.generativeai.java.GenerativeModelFutures modelFutures =
                 com.google.ai.client.generativeai.java.GenerativeModelFutures.from(gm);
-        
-        com.google.common.util.concurrent.ListenableFuture<com.google.ai.client.generativeai.type.GenerateContentResponse> response = 
+
+        com.google.common.util.concurrent.ListenableFuture<com.google.ai.client.generativeai.type.GenerateContentResponse> response =
                 modelFutures.generateContent(content);
 
         com.google.common.util.concurrent.Futures.addCallback(response, new com.google.common.util.concurrent.FutureCallback<com.google.ai.client.generativeai.type.GenerateContentResponse>() {
@@ -144,7 +155,6 @@ public class UploadActivity extends AppCompatActivity {
             @Override
             public void onFailure(Throwable t) {
                 runOnUiThread(() -> {
-                    // 상세 에러 로그 출력 (Logcat에서 확인 가능)
                     android.util.Log.e("OCR_ERROR", "OCR failed with message: " + t.getMessage(), t);
 
                     if (isQuotaExceededError(t)) {
@@ -187,9 +197,6 @@ public class UploadActivity extends AppCompatActivity {
                 });
     }
 
-    /**
-     * 이미지 크기를 조절하는 헬퍼 메서드
-     */
     private Bitmap getResizedBitmap(Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -264,7 +271,7 @@ public class UploadActivity extends AppCompatActivity {
                     return "Gemini 사용 한도 초과";
                 }
                 if (message.contains("404") && message.contains("models/")) {
-                    return "Gemini 모델을 찾을 수 없습니다. 모델 이름과 API 버전을 확인하세요.";
+                    return "Gemini 모델을 찾을 수 없습니다.";
                 }
                 if (message.contains("403")) {
                     return "API 키 문제 또는 권한 없음 (403)";
@@ -288,10 +295,6 @@ public class UploadActivity extends AppCompatActivity {
                     return true;
                 }
             }
-            String className = current.getClass().getSimpleName();
-            if (className != null && className.toLowerCase(Locale.getDefault()).contains("quota")) {
-                return true;
-            }
             current = current.getCause();
         }
         return false;
@@ -302,18 +305,23 @@ public class UploadActivity extends AppCompatActivity {
         for (Text.TextBlock block : text.getTextBlocks()) {
             String blockText = block.getText();
             if (blockText != null && !blockText.trim().isEmpty()) {
-                if (builder.length() > 0) {
-                    builder.append('\n');
-                }
+                if (builder.length() > 0) builder.append('\n');
                 builder.append(blockText.trim());
             }
         }
         return builder.toString().trim();
     }
 
+    // ✨ [수정] 다음 화면으로 이동할 때 이미지 Uri를 함께 전달합니다.
     private void openAnalysisWithText(String extractedText) {
         Intent intent = new Intent(UploadActivity.this, AnalysisActivity.class);
         intent.putExtra("extracted_text", extractedText);
+
+        // 이미지 경로가 있다면 Extra에 추가하여 다음 화면으로 배달
+        if (selectedImageUri != null) {
+            intent.putExtra("diary_image_uri", selectedImageUri.toString());
+        }
+
         startActivity(intent);
     }
 }
