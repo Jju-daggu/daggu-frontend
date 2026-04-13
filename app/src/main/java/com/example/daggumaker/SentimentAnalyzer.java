@@ -39,24 +39,22 @@ public class SentimentAnalyzer {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // 🌟 [핵심] 시나리오 기반 감정 분석
+    // 🌟 시나리오 기반 감정 분석 (과거형 감가상각 포함)
     public int analyzeSentimentWithWeight(String text) {
         if (text == null || text.isEmpty()) return 0;
 
-        // 1. 특수 시나리오 감지 (가장 우선순위가 높음)
-        // 시나리오 A: 성장/극복 (과거의 힘듦 + 현재의 긍정)
+        // 시나리오 A: 성장/극복
         if ((text.contains("힘들었") || text.contains("어려웠") || text.contains("처음엔")) &&
                 (text.contains("익숙해") || text.contains("좋았") || text.contains("뿌듯") || text.contains("보람"))) {
-            return 10; // 확정 긍정 점수 (성장)
+            return 10;
         }
 
-        // 시나리오 B: 상실/그리움 (과거의 존재/행복 + 현재의 부재/슬픔)
+        // 시나리오 B: 상실/그리움
         if ((text.contains("키웠었") || text.contains("옛날") || text.contains("예전")) &&
                 (text.contains("갔다") || text.contains("보고 싶") || text.contains("그립"))) {
-            return -10; // 확정 부정 점수 (그리움)
+            return -10;
         }
 
-        // 2. 일반 가중치 분석 (특수 시나리오에 해당하지 않을 경우)
         String[] sentences = text.split("(?<=[.!?])\\s*");
         double finalScore = 0;
         int n = sentences.length;
@@ -65,7 +63,7 @@ public class SentimentAnalyzer {
             String sentence = sentences[i];
             int sScore = getBaseScore(sentence);
 
-            // 과거형 어미가 포함된 문장은 긍정 점수 영향력을 절반으로 줄임
+            // 과거형 어미 포함 시 긍정 점수 반토막
             if (sentence.contains("었") || sentence.contains("았") || sentence.contains("더랬")) {
                 if (sScore > 0) sScore = (int)(sScore * 0.5);
             }
@@ -91,7 +89,8 @@ public class SentimentAnalyzer {
         return score;
     }
 
-    public List<String> extractKeywords(String text) {
+    // 🌟 동적 학습을 위한 '순수 명사' 추출기
+    public List<String> extractRawKeywords(String text) {
         if (text == null || text.isEmpty()) return new ArrayList<>();
         KomoranResult result = komoran.analyze(text);
         List<Token> tokenList = result.getTokenList();
@@ -101,12 +100,12 @@ public class SentimentAnalyzer {
             String word = token.getMorph();
             String pos = token.getPos();
 
-            // 일반명사(NNG) 위주 필터링 및 이름/숫자 방어
+            // 일반명사, 고유명사, 외국어 중 2글자 이상, 숫자 제외
             if ((pos.equals("NNG") || pos.equals("SL") || pos.equals("NNP"))
                     && word.length() >= 2 && !word.matches(".*\\d.*")) {
 
-                // 불용어 하드코딩 필터 (요일, 무의미한 단어)
-                if(!word.matches(".*요일") && !word.equals("학원") && !word.equals("처음") && !word.equals("생각")) {
+                // 절대 들어가면 안 되는 불용어 하드코딩
+                if(!word.matches(".*요일") && !word.equals("학원") && !word.equals("처음") && !word.equals("생각") && !word.equals("오늘") && !word.equals("제목")) {
                     if (!filtered.contains(word)) filtered.add(word);
                 }
             }
