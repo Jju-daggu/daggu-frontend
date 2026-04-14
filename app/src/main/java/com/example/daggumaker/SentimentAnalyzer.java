@@ -39,9 +39,15 @@ public class SentimentAnalyzer {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // 🌟 시나리오 기반 감정 분석 (과거형 감가상각 포함)
+    // 🌟 시나리오 기반 감정 분석 (과거형 감가상각 + 반전 문맥 + 즉사기 포함)
     public int analyzeSentimentWithWeight(String text) {
         if (text == null || text.isEmpty()) return 0;
+
+        // 🚨 [추가] 1. 즉사기 (치명적 부정 시나리오) - 행복한 일이 있었어도 무조건 최하점
+        if (text.contains("헤어졌") || text.contains("이별") || text.contains("헤어짐") ||
+                text.contains("돌아가셨") || text.contains("장례식") || text.contains("사고")) {
+            return -20;
+        }
 
         // 시나리오 A: 성장/극복
         if ((text.contains("힘들었") || text.contains("어려웠") || text.contains("처음엔")) &&
@@ -58,6 +64,7 @@ public class SentimentAnalyzer {
         String[] sentences = text.split("(?<=[.!?])\\s*");
         double finalScore = 0;
         int n = sentences.length;
+        boolean isReversed = false; // ✨ [추가] 반전 플래그
 
         for (int i = 0; i < n; i++) {
             String sentence = sentences[i];
@@ -68,7 +75,19 @@ public class SentimentAnalyzer {
                 if (sScore > 0) sScore = (int)(sScore * 0.5);
             }
 
+            // ✨ [추가] 2. 반전 접속사 감지
+            if (sentence.contains("하지만") || sentence.contains("그렇지만") || sentence.contains("그런데")) {
+                isReversed = true;
+            }
+
+            // 세민님의 기존 가중치 로직
             double weight = 1.0 + ((double) i / n) * 1.5;
+
+            // ✨ [추가] 3. 반전 이후의 문장은 감정 영향력을 5배로 증폭
+            if (isReversed) {
+                weight *= 5.0;
+            }
+
             finalScore += (sScore * weight);
         }
         return (int) Math.round(finalScore);
@@ -89,7 +108,7 @@ public class SentimentAnalyzer {
         return score;
     }
 
-    // 🌟 동적 학습을 위한 '순수 명사' 추출기
+    // 🌟 동적 학습을 위한 '순수 명사' 추출기 (세민님 로직 유지)
     public List<String> extractRawKeywords(String text) {
         if (text == null || text.isEmpty()) return new ArrayList<>();
         KomoranResult result = komoran.analyze(text);
