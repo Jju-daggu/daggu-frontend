@@ -127,9 +127,6 @@ public class UploadActivity extends AppCompatActivity {
         attemptOcrWithModel(resizedBitmap, 0);
     }
 
-    /**
-     * ✨ [2단계] 실패하면 다음 모델로 이어달리기(Fallback) 하는 메서드
-     */
     private void attemptOcrWithModel(Bitmap resizedBitmap, int modelIndex) {
         // 더 이상 시도할 AI 모델이 없다면? -> 기기 자체(로컬) OCR로 최종 우회!
         if (modelIndex >= FALLBACK_MODELS.length) {
