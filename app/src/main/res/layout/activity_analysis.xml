@@ -36,7 +36,6 @@
             android:fontFamily="@font/diary_font"
             android:textColor="#7A5C46"
             android:textSize="30sp"
-
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -91,10 +90,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fontFamily="@font/diary_font"
-                android:gravity="top|start" android:background="@android:color/transparent"
+                android:gravity="top|start"
+                android:background="@android:color/transparent"
                 android:hint="스캔 결과가 여기에 나타납니다.\n직접 수정할 수 있습니다."
-                android:textColor="#666666"
-                android:textSize="18sp" android:lineSpacingMultiplier="1.2" android:inputType="textMultiLine" android:scrollbars="vertical" android:importantForAutofill="no" />
+                android:textColor="#7A5C46"
+                android:textSize="18sp"
+                android:lineSpacingMultiplier="1.2"
+                android:inputType="textMultiLine"
+                android:scrollbars="vertical"
+                android:importantForAutofill="no" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -126,8 +130,5 @@
                 android:textStyle="bold" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
-    <androidx.constraintlayout.widget.Guideline android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

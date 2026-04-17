@@ -1,14 +1,17 @@
 package com.example.daggumaker;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet; // 중복 제거를 위해 추가
 
 public class VaultActivity extends AppCompatActivity {
 
@@ -17,52 +20,58 @@ public class VaultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vault);
 
-        // 1. 상단 타이틀 및 뒤로가기 버튼 설정
         TextView btnBack = findViewById(R.id.btn_back);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
+        TextView btnMain = findViewById(R.id.btn_main);
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
+        if (btnMain != null) btnMain.setOnClickListener(v -> finish()); // 혹은 메인 이동 로직
+
+        // 1. 🖼️ 기존 더미 이미지 싹 비우기
+        int[] allImageIds = {
+                R.id.iv_new_1, R.id.iv_new_2, R.id.iv_new_3, R.id.iv_new_4, R.id.iv_new_5,
+                R.id.iv_vault_1, R.id.iv_vault_2, R.id.iv_vault_3, R.id.iv_vault_4, R.id.iv_vault_5
+        };
+        for (int id : allImageIds) {
+            ImageView iv = findViewById(id);
+            if (iv != null) iv.setImageDrawable(null);
         }
 
-        // 2. 새로운 스티커가 들어갈 상단 레이아웃 찾기
-        LinearLayout layoutNewStickers = findViewById(R.id.layout_new_stickers);
+        // 2. 💾 저장소에서 데이터 불러오기 (LinkedHashSet으로 중복 자동 제거)
+        SharedPreferences prefs = getSharedPreferences("StickerVault", Context.MODE_PRIVATE);
+        String savedData = prefs.getString("uris", "");
 
-        // 3. StickerPreviewActivity에서 보낸 사진 데이터 리스트 받기
-        // (주의: 보낼 때와 받는 때의 키 값이 "sticker_uri_list"로 동일해야 합니다)
-        ArrayList<String> stickerUriList = getIntent().getStringArrayListExtra("sticker_uri_list");
+        // 중복을 허용하지 않으면서 순서를 유지하는 Set 사용
+        LinkedHashSet<String> stickerSet = new LinkedHashSet<>();
+        if (!savedData.isEmpty()) {
+            stickerSet.addAll(Arrays.asList(savedData.split(",")));
+        }
 
-        // 4. 새로운 사진 처리 로직
-        if (stickerUriList != null && !stickerUriList.isEmpty()) {
-            // 전달받은 사진이 있으면 상단 영역(layout_new_stickers)을 보여줍니다.
-            // XML 구조상 이 레이아웃이 위에 있으므로 기존 사진들은 자동으로 아래로 밀립니다.
-            if (layoutNewStickers != null) {
-                layoutNewStickers.setVisibility(View.VISIBLE);
+        // 3. 📩 새로 들어온 스티커 추가 (최신 것이 맨 앞으로 오게 처리)
+        ArrayList<String> newStickerUris = getIntent().getStringArrayListExtra("sticker_uri_list");
+        if (newStickerUris != null && !newStickerUris.isEmpty()) {
+            // 새로운 리스트를 만들어서 [새것 + 기존것] 순서로 합침 (중복은 Set이 알아서 거름)
+            ArrayList<String> combinedList = new ArrayList<>(newStickerUris);
+            combinedList.addAll(stickerSet);
+
+            stickerSet.clear();
+            stickerSet.addAll(combinedList);
+
+            // 💾 깨끗해진 목록을 다시 저장
+            StringBuilder sb = new StringBuilder();
+            for (String uri : stickerSet) {
+                if (sb.length() > 0) sb.append(",");
+                sb.append(uri);
             }
+            prefs.edit().putString("uris", sb.toString()).apply();
+        }
 
-            // 상단에 배치될 새로운 이미지 뷰 ID 배열
-            int[] newImageViewIds = {
-                    R.id.iv_new_1,
-                    R.id.iv_new_2,
-                    R.id.iv_new_3,
-                    R.id.iv_new_4,
-                    R.id.iv_new_5
-            };
-
-            // 리스트에 담긴 Uri를 하나씩 이미지 뷰에 로드
-            for (int i = 0; i < stickerUriList.size(); i++) {
-                if (i < newImageViewIds.length) {
-                    ImageView targetView = findViewById(newImageViewIds[i]);
-                    if (targetView != null) {
-                        Glide.with(this)
-                                .load(stickerUriList.get(i))
-                                .placeholder(android.R.color.transparent) // 로딩 전 투명 처리
-                                .into(targetView);
-                    }
-                }
-            }
-        } else {
-            // 전달받은 사진이 없으면 상단 영역을 아예 보이지 않게(GONE) 설정합니다.
-            if (layoutNewStickers != null) {
-                layoutNewStickers.setVisibility(View.GONE);
+        // 4. 🎨 화면에 그리기
+        ArrayList<String> finalDisplayList = new ArrayList<>(stickerSet);
+        for (int i = 0; i < finalDisplayList.size() && i < allImageIds.length; i++) {
+            ImageView targetView = findViewById(allImageIds[i]);
+            if (targetView != null) {
+                Glide.with(this)
+                        .load(finalDisplayList.get(i))
+                        .into(targetView);
             }
         }
     }

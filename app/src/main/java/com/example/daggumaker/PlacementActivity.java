@@ -1,15 +1,11 @@
 package com.example.daggumaker;
 
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipDescription;
-import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,24 +16,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.cardview.widget.CardView; // ✨ CardView 임포트 추가
 
 import com.bumptech.glide.Glide;
 
-import java.io.OutputStream;
-
 public class PlacementActivity extends AppCompatActivity {
 
-    private ConstraintLayout clNotebook;
+    // ✨ ConstraintLayout -> CardView로 타입 변경
+    private CardView cvNotebookContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_placement);
 
-        clNotebook = findViewById(R.id.cl_notebook);
+        // ✨ 뷰 연결
+        cvNotebookContainer = findViewById(R.id.cv_notebook_container);
         TextView btnBack = findViewById(R.id.btn_back);
         TextView btnSave = findViewById(R.id.btn_save);
         HorizontalScrollView hsvStickers = findViewById(R.id.hsv_stickers);
@@ -45,7 +40,7 @@ public class PlacementActivity extends AppCompatActivity {
         ImageView ivNotebookBase = findViewById(R.id.iv_notebook_base);
 
         // 배경 클릭 시 모든 핸들 숨김
-        clNotebook.setOnClickListener(v -> hideAllHandles());
+        cvNotebookContainer.setOnClickListener(v -> hideAllHandles());
 
         String imageUriString = getIntent().getStringExtra("diary_image_uri");
         if (imageUriString != null && ivNotebookBase != null) {
@@ -68,7 +63,8 @@ public class PlacementActivity extends AppCompatActivity {
             }
         }
 
-        clNotebook.setOnDragListener((v, event) -> {
+        // ✨ 드롭 리스너 연결
+        cvNotebookContainer.setOnDragListener((v, event) -> {
             if (event.getAction() == DragEvent.ACTION_DROP) {
                 int resId = Integer.parseInt(event.getClipData().getItemAt(0).getText().toString());
                 addStickerWithHandle(resId, event.getX(), event.getY());
@@ -88,23 +84,20 @@ public class PlacementActivity extends AppCompatActivity {
         container.setX(x - (initialSize / 2f));
         container.setY(y - (initialSize / 2f));
 
-        // 1. 스티커 이미지
         ImageView stickerImg = new ImageView(this);
         stickerImg.setImageResource(resId);
         stickerImg.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        stickerImg.setPadding(35, 35, 35, 35); // 핸들이 겹치지 않게 패딩 넉넉히
+        stickerImg.setPadding(35, 35, 35, 35);
 
-        // 2. 삭제 버튼 (왼쪽 상단)
         ImageView btnDelete = new ImageView(this);
-        btnDelete.setImageResource(android.R.drawable.ic_menu_close_clear_cancel); // X 아이콘
-        btnDelete.setBackgroundColor(0xAAFF4444); // 빨간색 반투명 배경
+        btnDelete.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
+        btnDelete.setBackgroundColor(0xAAFF4444);
         int handleSize = (int) (30 * getResources().getDisplayMetrics().density);
         FrameLayout.LayoutParams deleteParams = new FrameLayout.LayoutParams(handleSize, handleSize);
         deleteParams.gravity = android.view.Gravity.TOP | android.view.Gravity.START;
         btnDelete.setLayoutParams(deleteParams);
 
-        // 3. 크기 조절 핸들 (오른쪽 하단)
         ImageView btnScale = new ImageView(this);
         btnScale.setImageResource(android.R.drawable.ic_menu_edit);
         btnScale.setBackgroundColor(0x88FFFFFF);
@@ -112,7 +105,6 @@ public class PlacementActivity extends AppCompatActivity {
         scaleParams.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.END;
         btnScale.setLayoutParams(scaleParams);
 
-        // 🌟 초기에는 두 버튼 모두 숨김
         btnDelete.setVisibility(View.GONE);
         btnScale.setVisibility(View.GONE);
 
@@ -120,10 +112,9 @@ public class PlacementActivity extends AppCompatActivity {
         container.addView(btnDelete);
         container.addView(btnScale);
 
-        // [삭제 로직]
-        btnDelete.setOnClickListener(v -> clNotebook.removeView(container));
+        // ✨ 삭제 버튼 로직
+        btnDelete.setOnClickListener(v -> cvNotebookContainer.removeView(container));
 
-        // [이동 및 핸들 표시 로직]
         stickerImg.setOnTouchListener(new View.OnTouchListener() {
             float lastX, lastY;
             @Override
@@ -131,8 +122,8 @@ public class PlacementActivity extends AppCompatActivity {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         hideAllHandles();
-                        btnDelete.setVisibility(View.VISIBLE); // 🌟 삭제 버튼 표시
-                        btnScale.setVisibility(View.VISIBLE);  // 🌟 조절 핸들 표시
+                        btnDelete.setVisibility(View.VISIBLE);
+                        btnScale.setVisibility(View.VISIBLE);
 
                         lastX = event.getRawX();
                         lastY = event.getRawY();
@@ -149,7 +140,6 @@ public class PlacementActivity extends AppCompatActivity {
             }
         });
 
-        // [크기 조절 로직]
         btnScale.setOnTouchListener(new View.OnTouchListener() {
             float lastX;
             @Override
@@ -172,15 +162,15 @@ public class PlacementActivity extends AppCompatActivity {
             }
         });
 
-        clNotebook.addView(container);
+        // ✨ 생성된 스티커 컨테이너를 CardView에 추가
+        cvNotebookContainer.addView(container);
     }
 
     private void hideAllHandles() {
-        for (int i = 0; i < clNotebook.getChildCount(); i++) {
-            View child = clNotebook.getChildAt(i);
+        for (int i = 0; i < cvNotebookContainer.getChildCount(); i++) {
+            View child = cvNotebookContainer.getChildAt(i);
             if (child instanceof FrameLayout) {
                 FrameLayout container = (FrameLayout) child;
-                // 자식 1번(삭제), 2번(조절) 모두 숨김
                 container.getChildAt(1).setVisibility(View.GONE);
                 container.getChildAt(2).setVisibility(View.GONE);
             }
@@ -189,12 +179,10 @@ public class PlacementActivity extends AppCompatActivity {
 
     private void saveNotebookToGallery() {
         hideAllHandles();
-        // ... (이후 저장 로직은 기존과 동일) ...
-        Bitmap bitmap = Bitmap.createBitmap(clNotebook.getWidth(), clNotebook.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(cvNotebookContainer.getWidth(), cvNotebookContainer.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        clNotebook.draw(canvas);
+        cvNotebookContainer.draw(canvas);
 
-        // 저장 로직 생략 (기본 코드 유지)
         Toast.makeText(this, "갤러리에 저장되었습니다!", Toast.LENGTH_SHORT).show();
     }
 }
