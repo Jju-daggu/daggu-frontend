@@ -31,20 +31,21 @@ public class ResultActivity extends AppCompatActivity {
 
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
+        // 1. Intent에서 데이터 가져오기 (UploadActivity가 보내준 데이터)
         String finalText = getIntent().getStringExtra("final_text");
+        String aiEmotion = getIntent().getStringExtra("ai_emotion");
+        String aiSticker = getIntent().getStringExtra("ai_sticker");
+
         if (finalText != null) {
             tvExtractedRes.setText(finalText);
-            SentimentAnalyzer analyzer = new SentimentAnalyzer(this);
 
-            // 🌟 반전 가중치가 적용된 점수 계산
-            int score = analyzer.analyzeSentimentWithWeight(finalText);
-
-            List<String> currentKeywords = analyzer.extractRawKeywords(finalText);
+            // 🌟 무거운 형태소 분석기(SentimentAnalyzer) 대신, 가벼운 자체 키워드 추출 사용!
+            List<String> currentKeywords = extractSimpleKeywords(finalText);
             learnKeywords(currentKeywords);
             saveDailyKeywords(currentKeywords);
 
-            // 🌟 9가지 감정 UI 업데이트
-            updateUI(score, getTopGlobalKeywords(3), tvSentimentRes, tvKeywordsRes);
+            // 2. AI 결과를 바탕으로 UI 업데이트
+            updateUIWithAI(aiEmotion, aiSticker, getTopGlobalKeywords(3), tvSentimentRes, tvKeywordsRes);
         }
 
         if (cvGenerateSticker != null) {
@@ -56,36 +57,52 @@ public class ResultActivity extends AppCompatActivity {
         }
     }
 
-    private void updateUI(int score, List<String> keywords, TextView tvSentiment, TextView tvKeywords) {
-        // 9가지 감정 분류 규칙
-        if (score >= 10) {
-            tvSentiment.setText("어려움을 극복하고 훌쩍 성장한 하루네요! 🚀");
-            tvSentiment.setTextColor(Color.parseColor("#4CAF50")); // 초록 (성장)
-        } else if (score >= 6) {
-            tvSentiment.setText("완전 신나고 에너지가 뿜뿜 넘치는 하루! 😆");
-            tvSentiment.setTextColor(Color.parseColor("#FF9800")); // 주황 (신남)
-        } else if (score >= 3) {
-            tvSentiment.setText("가슴이 두근두근, 기분 좋은 설렘이 가득해요! 💓");
-            tvSentiment.setTextColor(Color.parseColor("#E91E63")); // 핑크 (설렘)
-        } else if (score >= 1) {
-            tvSentiment.setText("기분 좋은 일이 있었던 행복한 하루네요 ✨");
-            tvSentiment.setTextColor(Color.parseColor("#8BC34A")); // 연두 (행복)
-        } else if (score == 0) {
-            tvSentiment.setText("잔잔하고 차분한 평범한 일상이었어요 🍃");
-            tvSentiment.setTextColor(Color.parseColor("#7A5C46")); // 갈색 (평범)
-        } else if (score >= -3) {
-            tvSentiment.setText("마음이 조금 지치고 피곤한 날인가요? ☕");
-            tvSentiment.setTextColor(Color.parseColor("#9E9E9E")); // 회색 (피곤)
-        } else if (score >= -6) {
-            tvSentiment.setText("뜻대로 되지 않아 조금 답답하고 짜증이 났군요 😤");
-            tvSentiment.setTextColor(Color.parseColor("#FF5722")); // 짙은 주황 (짜증)
-        } else if (score >= -15) {
-            tvSentiment.setText("속상하고 우울한 마음에 위로가 필요한 날이에요 💧");
-            tvSentiment.setTextColor(Color.parseColor("#3F51B5")); // 남색 (우울)
-        } else {
-            tvSentiment.setText("소중한 과거의 추억이 사무치게 그리운 날 ☁️");
-            tvSentiment.setTextColor(Color.parseColor("#F44336")); // 빨강 (그리움/이별)
+    // --- 🌟 새롭게 추가된 가벼운 해시태그 추출기 ---
+    private List<String> extractSimpleKeywords(String text) {
+        List<String> keywords = new ArrayList<>();
+        String[] words = text.split("\\s+"); // 띄어쓰기 기준으로 나누기
+        for(String w : words) {
+            // 특수문자 제거하고 순수 글자만 남기기
+            String cleanWord = w.replaceAll("[^가-힣a-zA-Z]", "");
+            // 2~5글자 단어만 키워드로 추출 (너무 긴 문장 방지)
+            if(cleanWord.length() >= 2 && cleanWord.length() <= 5 && !keywords.contains(cleanWord)) {
+                keywords.add(cleanWord);
+            }
         }
+        return keywords;
+    }
+
+    // 🌟 AI 감정에 맞춰 문구와 색상을 정해주는 함수
+    private void updateUIWithAI(String emotion, String sticker, List<String> keywords, TextView tvSentiment, TextView tvKeywords) {
+        String displayMsg;
+        int color;
+
+        switch (emotion != null ? emotion : "잔잔한") {
+            case "즐거운": case "행복한":
+                displayMsg = "정말 행복하고 기분 좋은 하루네요! " + (sticker != null ? sticker : "🥰");
+                color = Color.parseColor("#8BC34A"); break;
+            case "뿌듯한":
+                displayMsg = "나 자신이 대견한, 정말 보람찬 하루예요! " + (sticker != null ? sticker : "💪");
+                color = Color.parseColor("#4CAF50"); break;
+            case "놀라운":
+                displayMsg = "와! 깜짝 놀랄 만한 일이 있었던 날이네요! " + (sticker != null ? sticker : "😲");
+                color = Color.parseColor("#FF9800"); break;
+            case "불안":
+                displayMsg = "마음이 조금 불안한가요? 다 잘 될 거예요. " + (sticker != null ? sticker : "😰");
+                color = Color.parseColor("#9E9E9E"); break;
+            case "속상한": case "슬픈":
+                displayMsg = "마음이 울적할 땐 푹 쉬는 것도 방법이에요. " + (sticker != null ? sticker : "🥺");
+                color = Color.parseColor("#3F51B5"); break;
+            case "화난/짜증":
+                displayMsg = "오늘은 정말 화가 나는 날이었군요. 후~ 숨을 골라봐요. " + (sticker != null ? sticker : "🔥");
+                color = Color.parseColor("#FF5722"); break;
+            default: // 잔잔한
+                displayMsg = "평온하고 잔잔한 하루였네요. " + (sticker != null ? sticker : "🌿");
+                color = Color.parseColor("#7A5C46"); break;
+        }
+
+        tvSentiment.setText(displayMsg);
+        tvSentiment.setTextColor(color);
 
         StringBuilder sb = new StringBuilder();
         for (String s : keywords) sb.append("#").append(s).append(" ");

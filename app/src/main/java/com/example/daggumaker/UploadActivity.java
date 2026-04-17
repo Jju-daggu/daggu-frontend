@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,13 +31,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
+
 public class UploadActivity extends AppCompatActivity {
 
     private static final String[] FALLBACK_MODELS = {
             "gemini-3.1-pro-preview",
             "gemini-3.0-pro",
             "gemini-2.5-flash-image-preview",
-            "gemini-3.1-flash-lite-preview", // 복사본에 있던 모델 추가
+            "gemini-3.1-flash-lite-preview",
             "gemini-2.5-flash"
     };
 
@@ -108,29 +116,84 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
+    // --- 🌟 AI 감정 분석 관련 Retrofit 설정 및 함수 🌟 ---
+
+    private void startAiAnalysis(String diaryText) {
+        String serverUrl = "https://cathouse-quadrant-opal.ngrok-free.dev";
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(serverUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        DiaryService service = retrofit.create(DiaryService.class);
+
+        // 줄바꿈 제거 (서버 JSON 에러 방지)
+        String cleanText = diaryText.replace("\n", " ").replace("\r", " ");
+        DiaryRequest request = new DiaryRequest(cleanText);
+
+        service.analyzeDiary(request).enqueue(new Callback<DiaryResponse>() {
+            @Override
+            public void onResponse(Call<DiaryResponse> call, Response<DiaryResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String emotion = response.body().getEmotion();
+                    String sticker = response.body().getSticker();
+
+                    runOnUiThread(() -> {
+                        // 분석이 완료되면 결과를 가지고 ResultActivity로 이동
+                        Intent intent = new Intent(UploadActivity.this, ResultActivity.class);
+                        intent.putExtra("final_text", cleanText);
+                        intent.putExtra("ai_emotion", emotion);
+                        intent.putExtra("ai_sticker", sticker);
+                        if (selectedImageUri != null) {
+                            intent.putExtra("diary_image_uri", selectedImageUri.toString());
+                        }
+                        startActivity(intent);
+
+                        // 로딩 바 끄기
+                        if (pbScanning != null) pbScanning.setVisibility(View.GONE);
+                        if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
+                    });
+                } else {
+                    Log.e("AI_API", "서버 응답 오류: " + response.code());
+                    runOnUiThread(() -> {
+                        if (pbScanning != null) pbScanning.setVisibility(View.GONE);
+                        if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
+                        Toast.makeText(UploadActivity.this, "분석 서버 응답 실패", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DiaryResponse> call, Throwable t) {
+                Log.e("AI_API", "분석 서버 연결 실패: " + t.getMessage());
+                runOnUiThread(() -> {
+                    if (pbScanning != null) pbScanning.setVisibility(View.GONE);
+                    if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
+                    Toast.makeText(UploadActivity.this, "서버 연결에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+    // --- OCR 로직 ---
+
     private void performOcr(Bitmap bitmap) {
         Bitmap resizedBitmap = getResizedBitmap(bitmap, 1024);
-
         if (pbScanning != null) pbScanning.setVisibility(View.VISIBLE);
         if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.INVISIBLE);
-
         attemptOcrWithModel(resizedBitmap, 0);
     }
 
     private void attemptOcrWithModel(Bitmap resizedBitmap, int modelIndex) {
         if (modelIndex >= FALLBACK_MODELS.length) {
-            Toast.makeText(UploadActivity.this, "AI 모델 한도 초과/응답 없음. 기기 내 스캐너로 대체합니다.", Toast.LENGTH_LONG).show();
             performLocalOcr(resizedBitmap);
             return;
         }
 
         String currentModelName = FALLBACK_MODELS[modelIndex];
-        android.util.Log.d("OCR_ATTEMPT", currentModelName + " 모델로 스캔 시도 중... (" + (modelIndex + 1) + "/" + FALLBACK_MODELS.length + ")");
-
         com.google.ai.client.generativeai.GenerativeModel gm = new com.google.ai.client.generativeai.GenerativeModel(
-                currentModelName,
-                BuildConfig.GEMINI_API_KEY
-        );
+                currentModelName, BuildConfig.GEMINI_API_KEY);
 
         com.google.ai.client.generativeai.type.Content content = new com.google.ai.client.generativeai.type.Content.Builder()
                 .addImage(resizedBitmap)
@@ -140,80 +203,66 @@ public class UploadActivity extends AppCompatActivity {
         com.google.ai.client.generativeai.java.GenerativeModelFutures modelFutures =
                 com.google.ai.client.generativeai.java.GenerativeModelFutures.from(gm);
 
-        com.google.common.util.concurrent.ListenableFuture<com.google.ai.client.generativeai.type.GenerateContentResponse> response =
-                modelFutures.generateContent(content);
-
-        com.google.common.util.concurrent.Futures.addCallback(response, new com.google.common.util.concurrent.FutureCallback<com.google.ai.client.generativeai.type.GenerateContentResponse>() {
-            @Override
-            public void onSuccess(com.google.ai.client.generativeai.type.GenerateContentResponse result) {
-                runOnUiThread(() -> {
-                    if (pbScanning != null) pbScanning.setVisibility(View.GONE);
-                    if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
-
-                    String extractedText = result.getText();
-                    android.util.Log.d("OCR_SUCCESS", currentModelName + " 로 추출 대성공! 🎉");
-                    openAnalysisWithText(extractedText);
-                });
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                runOnUiThread(() -> {
-                    // 복사본 로직 반영: 에러 메시지 추출 및 로깅
-                    String errorMsg = extractFriendlyErrorMessage(t);
-                    android.util.Log.e("OCR_ERROR", currentModelName + " 모델 실패. 원인: " + errorMsg);
-
-                    attemptOcrWithModel(resizedBitmap, modelIndex + 1);
-                });
-            }
-        }, androidx.core.content.ContextCompat.getMainExecutor(UploadActivity.this));
+        com.google.common.util.concurrent.Futures.addCallback(modelFutures.generateContent(content),
+                new com.google.common.util.concurrent.FutureCallback<com.google.ai.client.generativeai.type.GenerateContentResponse>() {
+                    @Override
+                    public void onSuccess(com.google.ai.client.generativeai.type.GenerateContentResponse result) {
+                        runOnUiThread(() -> {
+                            // OCR이 성공하면 바로 AI 분석 시작
+                            String extractedText = result.getText();
+                            if (extractedText != null && !extractedText.isEmpty()) {
+                                startAiAnalysis(extractedText);
+                            } else {
+                                if (pbScanning != null) pbScanning.setVisibility(View.GONE);
+                                if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
+                                Toast.makeText(UploadActivity.this, "텍스트를 인식하지 못했습니다.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                    @Override
+                    public void onFailure(Throwable t) {
+                        runOnUiThread(() -> attemptOcrWithModel(resizedBitmap, modelIndex + 1));
+                    }
+                }, androidx.core.content.ContextCompat.getMainExecutor(this));
     }
 
     private void performLocalOcr(Bitmap bitmap) {
-        TextRecognizer recognizer = TextRecognition.getClient(
-                new KoreanTextRecognizerOptions.Builder().build()
-        );
-
-        InputImage image = InputImage.fromBitmap(bitmap, 0);
-        recognizer.process(image)
+        TextRecognizer recognizer = TextRecognition.getClient(new KoreanTextRecognizerOptions.Builder().build());
+        recognizer.process(InputImage.fromBitmap(bitmap, 0))
                 .addOnSuccessListener(result -> {
                     String extractedText = extractTextFromBlocks(result);
-                    android.util.Log.d("OCR_FALLBACK_SUCCESS", "기기 내장 스캐너로 추출 성공!");
-                    openAnalysisWithText(extractedText);
+                    if (extractedText != null && !extractedText.isEmpty()) {
+                        startAiAnalysis(extractedText);
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    android.util.Log.e("OCR_FALLBACK_ERROR", "기기 스캐너도 실패", e);
-                    // 복사본 에러 처리 방식 반영
-                    String errorMsg = extractFriendlyErrorMessage(e);
-                    Toast.makeText(UploadActivity.this, "대체 OCR도 실패: " + errorMsg, Toast.LENGTH_LONG).show();
-                })
-                .addOnCompleteListener(task -> {
-                    recognizer.close();
                     if (pbScanning != null) pbScanning.setVisibility(View.GONE);
                     if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
                 });
+    }
+
+    // --- 헬퍼 함수들 (이미지 처리 등) ---
+
+    private String extractTextFromBlocks(Text text) {
+        StringBuilder builder = new StringBuilder();
+        for (Text.TextBlock block : text.getTextBlocks()) {
+            builder.append(block.getText()).append("\n");
+        }
+        return builder.toString().trim();
     }
 
     private Bitmap getResizedBitmap(Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
-
         float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1) {
-            width = maxSize;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxSize;
-            width = (int) (height * bitmapRatio);
-        }
+        if (bitmapRatio > 1) { width = maxSize; height = (int) (width / bitmapRatio); }
+        else { height = maxSize; width = (int) (height * bitmapRatio); }
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
     private void dispatchTakePictureIntent() {
         File photoFile = null;
-        try { photoFile = createImageFile(); }
-        catch (IOException ex) { Toast.makeText(this, "파일 생성 실패", Toast.LENGTH_SHORT).show(); }
-
+        try { photoFile = createImageFile(); } catch (IOException ex) { }
         if (photoFile != null) {
             Uri photoURI = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", photoFile);
             takePictureLauncher.launch(photoURI);
@@ -229,129 +278,41 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void setPicFromFile() {
-        if (currentPhotoPath != null) {
-            selectedBitmap = decodeSampledBitmapFromFile(currentPhotoPath, 1024, 1024);
-            updatePreview(selectedBitmap);
-        }
+        selectedBitmap = BitmapFactory.decodeFile(currentPhotoPath);
+        updatePreview(selectedBitmap);
     }
 
     private void setPicFromUri(Uri uri) {
         try {
-            selectedBitmap = decodeSampledBitmapFromUri(uri, 1024, 1024);
+            InputStream is = getContentResolver().openInputStream(uri);
+            selectedBitmap = BitmapFactory.decodeStream(is);
             updatePreview(selectedBitmap);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Bitmap decodeSampledBitmapFromFile(String path, int reqWidth, int reqHeight) {
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, options);
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(path, options);
-    }
-
-    private Bitmap decodeSampledBitmapFromUri(Uri uri, int reqWidth, int reqHeight) throws Exception {
-        InputStream is = getContentResolver().openInputStream(uri);
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(is, null, options);
-        is.close();
-
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-        options.inJustDecodeBounds = false;
-        is = getContentResolver().openInputStream(uri);
-        Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
-        is.close();
-        return bitmap;
-    }
-
-    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-            while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-        return inSampleSize;
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void updatePreview(Bitmap bitmap) {
-        if (ivPreview != null && bitmap != null) {
+        if (ivPreview != null) {
             ivPreview.setImageBitmap(bitmap);
             ivPreview.setVisibility(View.VISIBLE);
             if (tvPreviewText != null) tvPreviewText.setVisibility(View.GONE);
         }
     }
 
-    // 복사본 반영: 에러 친화적 변환 메서드
-    private String extractFriendlyErrorMessage(Throwable throwable) {
-        Throwable current = throwable;
-        while (current != null) {
-            String message = current.getMessage();
-            if (message != null && !message.trim().isEmpty()) {
-                String lower = message.toLowerCase(Locale.getDefault());
-                if (lower.contains("quota") || lower.contains("rate limit") || lower.contains("limit: 0")) {
-                    return "Gemini 사용 한도 초과";
-                }
-                if (message.contains("404") && message.contains("models/")) {
-                    return "Gemini 모델을 찾을 수 없습니다.";
-                }
-                if (message.contains("403")) {
-                    return "API 키 문제 또는 권한 없음 (403)";
-                }
-                if (!message.contains("MissingFieldException")) {
-                    return message;
-                }
-            }
-            current = current.getCause();
-        }
-        return "알 수 없는 오류";
+    // --- 🌟 Retrofit용 내부 클래스/인터페이스 🌟 ---
+    class DiaryRequest {
+        String content;
+        DiaryRequest(String content) { this.content = content; }
     }
 
-    // 복사본 반영: 할당량 초과 확인 메서드
-    private boolean isQuotaExceededError(Throwable throwable) {
-        Throwable current = throwable;
-        while (current != null) {
-            String message = current.getMessage();
-            if (message != null) {
-                String lower = message.toLowerCase(Locale.getDefault());
-                if (lower.contains("quota") || lower.contains("rate limit") || lower.contains("limit: 0")) {
-                    return true;
-                }
-            }
-            current = current.getCause();
-        }
-        return false;
+    class DiaryResponse {
+        String emotion;
+        String sticker;
+        public String getEmotion() { return emotion; }
+        public String getSticker() { return sticker; }
     }
 
-    private String extractTextFromBlocks(Text text) {
-        StringBuilder builder = new StringBuilder();
-        for (Text.TextBlock block : text.getTextBlocks()) {
-            String blockText = block.getText();
-            if (blockText != null && !blockText.trim().isEmpty()) {
-                if (builder.length() > 0) builder.append('\n');
-                builder.append(blockText.trim());
-            }
-        }
-        return builder.toString().trim();
-    }
-
-    private void openAnalysisWithText(String extractedText) {
-        Intent intent = new Intent(UploadActivity.this, AnalysisActivity.class);
-        intent.putExtra("extracted_text", extractedText);
-
-        if (selectedImageUri != null) {
-            intent.putExtra("diary_image_uri", selectedImageUri.toString());
-        }
-
-        startActivity(intent);
+    interface DiaryService {
+        @POST("/analyze")
+        Call<DiaryResponse> analyzeDiary(@Body DiaryRequest request);
     }
 }
