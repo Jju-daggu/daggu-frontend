@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,12 +33,13 @@ import java.util.Locale;
 
 public class UploadActivity extends AppCompatActivity {
 
+    // 🌟 1. 안드로이드 SDK에서 확실히 작동하는 안정적인 모델 이름으로 교체!
+    // 이렇게 두 개만 딱 남겨두세요!
     private static final String[] FALLBACK_MODELS = {
-            "gemini-3.1-pro-preview",
-            "gemini-3.0-pro",
-            "gemini-2.5-flash-image-preview",
             "gemini-3.1-flash-lite-preview",
-            "gemini-2.5-flash"
+            "gemini-3.1-pro-preview",
+            "gemini-2.5-flash",
+            "gemini-2.5-pro"
     };
 
     private String currentPhotoPath;
@@ -107,10 +109,9 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
-    // --- OCR 로직 ---
-
     private void performOcr(Bitmap bitmap) {
-        Bitmap resizedBitmap = getResizedBitmap(bitmap, 1024);
+        // 🌟 2. 손글씨 인식을 위해 해상도를 2048로 높임 (기존 1024)
+        Bitmap resizedBitmap = getResizedBitmap(bitmap, 2048);
         if (pbScanning != null) pbScanning.setVisibility(View.VISIBLE);
         if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.INVISIBLE);
         attemptOcrWithModel(resizedBitmap, 0);
@@ -118,6 +119,7 @@ public class UploadActivity extends AppCompatActivity {
 
     private void attemptOcrWithModel(Bitmap resizedBitmap, int modelIndex) {
         if (modelIndex >= FALLBACK_MODELS.length) {
+            Log.e("OCR_TEST", "제미나이 호출 모두 실패! 로컬 ML Kit로 넘어갑니다.");
             performLocalOcr(resizedBitmap);
             return;
         }
@@ -126,9 +128,10 @@ public class UploadActivity extends AppCompatActivity {
         com.google.ai.client.generativeai.GenerativeModel gm = new com.google.ai.client.generativeai.GenerativeModel(
                 currentModelName, BuildConfig.GEMINI_API_KEY);
 
+        // 🌟 프롬프트를 조금 더 확실하게 수정
         com.google.ai.client.generativeai.type.Content content = new com.google.ai.client.generativeai.type.Content.Builder()
                 .addImage(resizedBitmap)
-                .addText("이 이미지에 포함된 일기 내용을 텍스트로 추출해줘. 텍스트만 출력해.")
+                .addText("이 이미지에 있는 손글씨 일기 내용을 정확하게 텍스트로 추출해줘. 오직 추출된 텍스트만 출력하고 다른 말은 덧붙이지 마.")
                 .build();
 
         com.google.ai.client.generativeai.java.GenerativeModelFutures modelFutures =
@@ -138,10 +141,12 @@ public class UploadActivity extends AppCompatActivity {
                 new com.google.common.util.concurrent.FutureCallback<com.google.ai.client.generativeai.type.GenerateContentResponse>() {
                     @Override
                     public void onSuccess(com.google.ai.client.generativeai.type.GenerateContentResponse result) {
+                        Log.d("OCR_TEST", "제미나이 OCR 성공! (" + currentModelName + ")");
                         runOnUiThread(() -> openAnalysisWithText(result.getText()));
                     }
                     @Override
                     public void onFailure(Throwable t) {
+                        Log.e("OCR_TEST", "제미나이 에러 (" + currentModelName + "): " + t.getMessage());
                         runOnUiThread(() -> attemptOcrWithModel(resizedBitmap, modelIndex + 1));
                     }
                 }, androidx.core.content.ContextCompat.getMainExecutor(this));
@@ -154,7 +159,6 @@ public class UploadActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> openAnalysisWithText(""));
     }
 
-    // 🌟 AI 호출 없이 AnalysisActivity로 데이터만 넘김
     private void openAnalysisWithText(String extractedText) {
         if (pbScanning != null) pbScanning.setVisibility(View.GONE);
         if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
@@ -164,8 +168,6 @@ public class UploadActivity extends AppCompatActivity {
         if (selectedImageUri != null) intent.putExtra("diary_image_uri", selectedImageUri.toString());
         startActivity(intent);
     }
-
-    // --- 헬퍼 함수들 (이미지 처리 등) ---
 
     private String extractTextFromBlocks(Text text) {
         StringBuilder builder = new StringBuilder();

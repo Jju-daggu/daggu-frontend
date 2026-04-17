@@ -8,7 +8,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-// Retrofit 관련 임포트 (추가됨)
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -19,7 +18,6 @@ import retrofit2.http.POST;
 
 public class AnalysisActivity extends AppCompatActivity {
 
-    // OCR 추출 텍스트 수정용 EditText
     private EditText etExtractedText;
 
     @Override
@@ -33,16 +31,14 @@ public class AnalysisActivity extends AppCompatActivity {
         View btnSubmit = findViewById(R.id.cv_analysis);
         etExtractedText = findViewById(R.id.et_extracted_text);
 
-        // [추가] UploadActivity로부터 전달받은 OCR 텍스트 설정
+        // OCR 텍스트 설정
         String initialText = getIntent().getStringExtra("extracted_text");
         if (initialText != null && etExtractedText != null) {
             etExtractedText.setText(initialText);
         }
 
-        // 2. 뒤로가기 버튼
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
-        // 3. 메인 버튼
         if (btnMain != null) {
             btnMain.setOnClickListener(v -> {
                 Intent intent = new Intent(AnalysisActivity.this, MainActivity.class);
@@ -52,7 +48,7 @@ public class AnalysisActivity extends AppCompatActivity {
             });
         }
 
-        // 4. 분석 버튼 클릭 → 🌟 바로 넘어가지 않고 AI 분석 시작!
+        // 4. 분석 버튼 클릭
         if (btnSubmit != null) {
             btnSubmit.setOnClickListener(v -> {
                 String finalText = etExtractedText.getText().toString();
@@ -62,10 +58,7 @@ public class AnalysisActivity extends AppCompatActivity {
                     return;
                 }
 
-                // 분석 중임을 알리는 토스트 메시지
                 Toast.makeText(this, "AI가 일기를 분석하고 있습니다...", Toast.LENGTH_SHORT).show();
-
-                // 버튼을 여러 번 누르는 것 방지
                 btnSubmit.setEnabled(false);
 
                 // AI 서버로 전송
@@ -74,11 +67,9 @@ public class AnalysisActivity extends AppCompatActivity {
         }
     }
 
-    // --- 🌟 AI 감정 분석 통신 로직 🌟 ---
     private void startAiAnalysis(String diaryText, View btnSubmit) {
-        // 방금 뚫어둔 세민 님의 Ngrok 터널 주소입니다!
+        // Ngrok 주소 (현재 세민님이 사용 중인 주소로 유지)
         String serverUrl = "https://cathouse-quadrant-opal.ngrok-free.dev";
-
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(serverUrl)
@@ -87,7 +78,6 @@ public class AnalysisActivity extends AppCompatActivity {
 
         DiaryService service = retrofit.create(DiaryService.class);
 
-        // 줄바꿈 제거 (서버 JSON 에러 방지)
         String cleanText = diaryText.replace("\n", " ").replace("\r", " ");
         DiaryRequest request = new DiaryRequest(cleanText);
 
@@ -95,20 +85,21 @@ public class AnalysisActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<DiaryResponse> call, Response<DiaryResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    // 서버에서 온 데이터들 추출
                     String emotion = response.body().getEmotion();
                     String sticker = response.body().getSticker();
+                    String tagsString = response.body().getTagsString(); // 🌟 서버에서 보낸 키워드 문자열
 
                     runOnUiThread(() -> {
-                        // 🌟 분석 성공! 결과를 들고 ResultActivity로 이동
+                        // 결과 화면(ResultActivity)으로 이동하며 데이터 전달
                         Intent intent = new Intent(AnalysisActivity.this, ResultActivity.class);
                         intent.putExtra("final_text", cleanText);
                         intent.putExtra("ai_emotion", emotion);
                         intent.putExtra("ai_sticker", sticker);
+                        intent.putExtra("ai_tags_string", tagsString); // 🌟 인텐트에 키워드 추가!
                         intent.putExtra("diary_image_uri", getIntent().getStringExtra("diary_image_uri"));
 
                         startActivity(intent);
-
-                        // 이동 후 버튼 다시 활성화
                         btnSubmit.setEnabled(true);
                     });
                 } else {
@@ -122,16 +113,16 @@ public class AnalysisActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<DiaryResponse> call, Throwable t) {
-                Log.e("AI_API", "분석 서버 연결 실패: " + t.getMessage());
+                Log.e("AI_API", "연결 실패: " + t.getMessage());
                 runOnUiThread(() -> {
-                    Toast.makeText(AnalysisActivity.this, "서버 연결에 실패했습니다. (터미널이 켜져 있는지 확인하세요)", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AnalysisActivity.this, "서버 연결에 실패했습니다.", Toast.LENGTH_LONG).show();
                     btnSubmit.setEnabled(true);
                 });
             }
         });
     }
 
-    // --- 🌟 Retrofit용 내부 클래스/인터페이스 ---
+    // --- Retrofit 데이터 모델 ---
     class DiaryRequest {
         String content;
         DiaryRequest(String content) { this.content = content; }
@@ -140,8 +131,11 @@ public class AnalysisActivity extends AppCompatActivity {
     class DiaryResponse {
         String emotion;
         String sticker;
+        String tags_string; // 🌟 서버 JSON의 "tags_string"과 이름이 같아야 함
+
         public String getEmotion() { return emotion; }
         public String getSticker() { return sticker; }
+        public String getTagsString() { return tags_string; } // 🌟 게터 추가
     }
 
     interface DiaryService {

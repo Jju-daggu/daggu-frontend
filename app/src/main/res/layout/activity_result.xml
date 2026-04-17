@@ -153,12 +153,13 @@
                 app:cardElevation="4dp"
                 app:cardBackgroundColor="#FFFCF8"
                 app:cardUseCompatPadding="true">
+
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/diary_font"
                     android:gravity="center"
                     android:text="스티커 생성"
-                    android:fontFamily="@font/diary_font"
                     android:textColor="#7A5C46"
                     android:textSize="32sp"
                     android:textStyle="bold" />
