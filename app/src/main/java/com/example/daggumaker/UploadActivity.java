@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,14 +29,6 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Body;
-import retrofit2.http.POST;
 
 public class UploadActivity extends AppCompatActivity {
 
@@ -116,66 +107,6 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
-    // --- 🌟 AI 감정 분석 관련 Retrofit 설정 및 함수 🌟 ---
-
-    private void startAiAnalysis(String diaryText) {
-        String serverUrl = "https://cathouse-quadrant-opal.ngrok-free.dev";
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(serverUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        DiaryService service = retrofit.create(DiaryService.class);
-
-        // 줄바꿈 제거 (서버 JSON 에러 방지)
-        String cleanText = diaryText.replace("\n", " ").replace("\r", " ");
-        DiaryRequest request = new DiaryRequest(cleanText);
-
-        service.analyzeDiary(request).enqueue(new Callback<DiaryResponse>() {
-            @Override
-            public void onResponse(Call<DiaryResponse> call, Response<DiaryResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    String emotion = response.body().getEmotion();
-                    String sticker = response.body().getSticker();
-
-                    runOnUiThread(() -> {
-                        // 분석이 완료되면 결과를 가지고 ResultActivity로 이동
-                        Intent intent = new Intent(UploadActivity.this, ResultActivity.class);
-                        intent.putExtra("final_text", cleanText);
-                        intent.putExtra("ai_emotion", emotion);
-                        intent.putExtra("ai_sticker", sticker);
-                        if (selectedImageUri != null) {
-                            intent.putExtra("diary_image_uri", selectedImageUri.toString());
-                        }
-                        startActivity(intent);
-
-                        // 로딩 바 끄기
-                        if (pbScanning != null) pbScanning.setVisibility(View.GONE);
-                        if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
-                    });
-                } else {
-                    Log.e("AI_API", "서버 응답 오류: " + response.code());
-                    runOnUiThread(() -> {
-                        if (pbScanning != null) pbScanning.setVisibility(View.GONE);
-                        if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
-                        Toast.makeText(UploadActivity.this, "분석 서버 응답 실패", Toast.LENGTH_SHORT).show();
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(Call<DiaryResponse> call, Throwable t) {
-                Log.e("AI_API", "분석 서버 연결 실패: " + t.getMessage());
-                runOnUiThread(() -> {
-                    if (pbScanning != null) pbScanning.setVisibility(View.GONE);
-                    if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
-                    Toast.makeText(UploadActivity.this, "서버 연결에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                });
-            }
-        });
-    }
-
     // --- OCR 로직 ---
 
     private void performOcr(Bitmap bitmap) {
@@ -207,17 +138,7 @@ public class UploadActivity extends AppCompatActivity {
                 new com.google.common.util.concurrent.FutureCallback<com.google.ai.client.generativeai.type.GenerateContentResponse>() {
                     @Override
                     public void onSuccess(com.google.ai.client.generativeai.type.GenerateContentResponse result) {
-                        runOnUiThread(() -> {
-                            // OCR이 성공하면 바로 AI 분석 시작
-                            String extractedText = result.getText();
-                            if (extractedText != null && !extractedText.isEmpty()) {
-                                startAiAnalysis(extractedText);
-                            } else {
-                                if (pbScanning != null) pbScanning.setVisibility(View.GONE);
-                                if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
-                                Toast.makeText(UploadActivity.this, "텍스트를 인식하지 못했습니다.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        runOnUiThread(() -> openAnalysisWithText(result.getText()));
                     }
                     @Override
                     public void onFailure(Throwable t) {
@@ -229,16 +150,19 @@ public class UploadActivity extends AppCompatActivity {
     private void performLocalOcr(Bitmap bitmap) {
         TextRecognizer recognizer = TextRecognition.getClient(new KoreanTextRecognizerOptions.Builder().build());
         recognizer.process(InputImage.fromBitmap(bitmap, 0))
-                .addOnSuccessListener(result -> {
-                    String extractedText = extractTextFromBlocks(result);
-                    if (extractedText != null && !extractedText.isEmpty()) {
-                        startAiAnalysis(extractedText);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (pbScanning != null) pbScanning.setVisibility(View.GONE);
-                    if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
-                });
+                .addOnSuccessListener(result -> openAnalysisWithText(extractTextFromBlocks(result)))
+                .addOnFailureListener(e -> openAnalysisWithText(""));
+    }
+
+    // 🌟 AI 호출 없이 AnalysisActivity로 데이터만 넘김
+    private void openAnalysisWithText(String extractedText) {
+        if (pbScanning != null) pbScanning.setVisibility(View.GONE);
+        if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
+
+        Intent intent = new Intent(UploadActivity.this, AnalysisActivity.class);
+        intent.putExtra("extracted_text", extractedText);
+        if (selectedImageUri != null) intent.putExtra("diary_image_uri", selectedImageUri.toString());
+        startActivity(intent);
     }
 
     // --- 헬퍼 함수들 (이미지 처리 등) ---
@@ -296,23 +220,5 @@ public class UploadActivity extends AppCompatActivity {
             ivPreview.setVisibility(View.VISIBLE);
             if (tvPreviewText != null) tvPreviewText.setVisibility(View.GONE);
         }
-    }
-
-    // --- 🌟 Retrofit용 내부 클래스/인터페이스 🌟 ---
-    class DiaryRequest {
-        String content;
-        DiaryRequest(String content) { this.content = content; }
-    }
-
-    class DiaryResponse {
-        String emotion;
-        String sticker;
-        public String getEmotion() { return emotion; }
-        public String getSticker() { return sticker; }
-    }
-
-    interface DiaryService {
-        @POST("/analyze")
-        Call<DiaryResponse> analyzeDiary(@Body DiaryRequest request);
     }
 }
