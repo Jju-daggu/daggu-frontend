@@ -156,7 +156,7 @@
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:fontFamily="@font/diary_font"
                     android:gravity="center"
                     android:text="스티커 생성"
