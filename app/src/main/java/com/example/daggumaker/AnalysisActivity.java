@@ -25,13 +25,11 @@ public class AnalysisActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analysis);
 
-        // 1. 뷰 연결
         View btnBack = findViewById(R.id.btn_back);
         View btnMain = findViewById(R.id.btn_main);
         View btnSubmit = findViewById(R.id.cv_analysis);
         etExtractedText = findViewById(R.id.et_extracted_text);
 
-        // OCR 텍스트 설정
         String initialText = getIntent().getStringExtra("extracted_text");
         if (initialText != null && etExtractedText != null) {
             etExtractedText.setText(initialText);
@@ -48,7 +46,6 @@ public class AnalysisActivity extends AppCompatActivity {
             });
         }
 
-        // 4. 분석 버튼 클릭
         if (btnSubmit != null) {
             btnSubmit.setOnClickListener(v -> {
                 String finalText = etExtractedText.getText().toString();
@@ -61,15 +58,14 @@ public class AnalysisActivity extends AppCompatActivity {
                 Toast.makeText(this, "AI가 일기를 분석하고 있습니다...", Toast.LENGTH_SHORT).show();
                 btnSubmit.setEnabled(false);
 
-                // AI 서버로 전송
                 startAiAnalysis(finalText, btnSubmit);
             });
         }
     }
 
     private void startAiAnalysis(String diaryText, View btnSubmit) {
-        // Ngrok 주소 (현재 세민님이 사용 중인 주소로 유지)
-        String serverUrl = "https://cathouse-quadrant-opal.ngrok-free.dev";
+        // 🌟 수정 1: 주소 맨 끝에 슬래시(/) 반드시 추가!
+        String serverUrl = "https://cathouse-quadrant-opal.ngrok-free.dev/";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(serverUrl)
@@ -85,39 +81,34 @@ public class AnalysisActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<DiaryResponse> call, Response<DiaryResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // 서버에서 온 데이터들 추출
                     String emotion = response.body().getEmotion();
                     String sticker = response.body().getSticker();
-                    String tagsString = response.body().getTagsString(); // 🌟 서버에서 보낸 키워드 문자열
+                    String tagsString = response.body().getTagsString();
+                    String stickerUrl = response.body().getStickerUrl(); // 🌟 수정 2: AI 스티커 URL 받기
 
-                    runOnUiThread(() -> {
-                        // 결과 화면(ResultActivity)으로 이동하며 데이터 전달
-                        Intent intent = new Intent(AnalysisActivity.this, ResultActivity.class);
-                        intent.putExtra("final_text", cleanText);
-                        intent.putExtra("ai_emotion", emotion);
-                        intent.putExtra("ai_sticker", sticker);
-                        intent.putExtra("ai_tags_string", tagsString); // 🌟 인텐트에 키워드 추가!
-                        intent.putExtra("diary_image_uri", getIntent().getStringExtra("diary_image_uri"));
+                    // 🌟 수정 3: runOnUiThread 제거 (이미 UI 스레드임)
+                    Intent intent = new Intent(AnalysisActivity.this, ResultActivity.class);
+                    intent.putExtra("final_text", cleanText);
+                    intent.putExtra("ai_emotion", emotion);
+                    intent.putExtra("ai_sticker", sticker);
+                    intent.putExtra("ai_tags_string", tagsString);
+                    intent.putExtra("ai_sticker_url", stickerUrl); // 다음 화면으로 스티커 URL 넘기기
+                    intent.putExtra("diary_image_uri", getIntent().getStringExtra("diary_image_uri"));
 
-                        startActivity(intent);
-                        btnSubmit.setEnabled(true);
-                    });
+                    startActivity(intent);
+                    btnSubmit.setEnabled(true);
                 } else {
                     Log.e("AI_API", "서버 응답 오류: " + response.code());
-                    runOnUiThread(() -> {
-                        Toast.makeText(AnalysisActivity.this, "분석 실패: 서버 응답 오류", Toast.LENGTH_SHORT).show();
-                        btnSubmit.setEnabled(true);
-                    });
+                    Toast.makeText(AnalysisActivity.this, "분석 실패: 서버 응답 오류", Toast.LENGTH_SHORT).show();
+                    btnSubmit.setEnabled(true);
                 }
             }
 
             @Override
             public void onFailure(Call<DiaryResponse> call, Throwable t) {
                 Log.e("AI_API", "연결 실패: " + t.getMessage());
-                runOnUiThread(() -> {
-                    Toast.makeText(AnalysisActivity.this, "서버 연결에 실패했습니다.", Toast.LENGTH_LONG).show();
-                    btnSubmit.setEnabled(true);
-                });
+                Toast.makeText(AnalysisActivity.this, "서버 연결에 실패했습니다.", Toast.LENGTH_LONG).show();
+                btnSubmit.setEnabled(true);
             }
         });
     }
@@ -131,15 +122,18 @@ public class AnalysisActivity extends AppCompatActivity {
     class DiaryResponse {
         String emotion;
         String sticker;
-        String tags_string; // 🌟 서버 JSON의 "tags_string"과 이름이 같아야 함
+        String tags_string;
+        String sticker_url; // 🌟 새로 추가된 AI 스티커 이미지 URL
 
         public String getEmotion() { return emotion; }
         public String getSticker() { return sticker; }
-        public String getTagsString() { return tags_string; } // 🌟 게터 추가
+        public String getTagsString() { return tags_string; }
+        public String getStickerUrl() { return sticker_url; } // 🌟 게터 추가
     }
 
     interface DiaryService {
-        @POST("/analyze")
+        // 🌟 BaseUrl 끝에 /가 있으므로, 여기서는 앞에 /를 빼는 것이 안전합니다.
+        @POST("analyze")
         Call<DiaryResponse> analyzeDiary(@Body DiaryRequest request);
     }
 }
