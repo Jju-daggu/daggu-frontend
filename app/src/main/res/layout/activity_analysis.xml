@@ -20,6 +20,8 @@
             android:background="@drawable/bg_rounded_button"
             android:paddingHorizontal="9dp"
             android:paddingVertical="4dp"
+            android:clickable="true"
+            android:focusable="true"
             android:text="뒤로가기"
             android:fontFamily="@font/diary_font"
             android:textColor="#555555"
@@ -49,6 +51,8 @@
             android:background="@drawable/bg_rounded_button"
             android:paddingHorizontal="16dp"
             android:paddingVertical="4dp"
+            android:clickable="true"
+            android:focusable="true"
             android:text="메인"
             android:fontFamily="@font/diary_font"
             android:textColor="#555555"
@@ -76,7 +80,7 @@
         app:cardBackgroundColor="#FFFCF8"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true"
-        app:layout_constraintBottom_toTopOf="@id/cv_analysis"
+        app:layout_constraintBottom_toTopOf="@id/cv_hint_container"
         app:layout_constraintTop_toBottomOf="@id/layout_top_bar">
 
         <LinearLayout
@@ -100,6 +104,32 @@
                 android:scrollbars="vertical"
                 android:importantForAutofill="no" />
         </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_hint_container"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginBottom="15dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFFCF8"
+        app:layout_constraintBottom_toTopOf="@id/cv_analysis">
+
+        <EditText
+            android:id="@+id/et_image_hint"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="20dp"
+            android:fontFamily="@font/diary_font"
+            android:background="@android:color/transparent"
+            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,!?'"
+            android:hint="English hint (e.g., cute puppy)"
+            android:textColor="#7A5C46"
+            android:textSize="16sp"
+            android:inputType="text"
+            android:importantForAutofill="no" />
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView

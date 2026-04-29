@@ -33,8 +33,6 @@ import java.util.Locale;
 
 public class UploadActivity extends AppCompatActivity {
 
-    // 🌟 1. 안드로이드 SDK에서 확실히 작동하는 안정적인 모델 이름으로 교체!
-    // 이렇게 두 개만 딱 남겨두세요!
     private static final String[] FALLBACK_MODELS = {
             "gemini-3.1-flash-lite-preview",
             "gemini-3.1-pro-preview",
@@ -110,7 +108,6 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void performOcr(Bitmap bitmap) {
-        // 🌟 2. 손글씨 인식을 위해 해상도를 2048로 높임 (기존 1024)
         Bitmap resizedBitmap = getResizedBitmap(bitmap, 2048);
         if (pbScanning != null) pbScanning.setVisibility(View.VISIBLE);
         if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.INVISIBLE);
@@ -119,16 +116,14 @@ public class UploadActivity extends AppCompatActivity {
 
     private void attemptOcrWithModel(Bitmap resizedBitmap, int modelIndex) {
         if (modelIndex >= FALLBACK_MODELS.length) {
-            Log.e("OCR_TEST", "제미나이 호출 모두 실패! 로컬 ML Kit로 넘어갑니다.");
             performLocalOcr(resizedBitmap);
             return;
         }
 
         String currentModelName = FALLBACK_MODELS[modelIndex];
         com.google.ai.client.generativeai.GenerativeModel gm = new com.google.ai.client.generativeai.GenerativeModel(
-                currentModelName, BuildConfig.GEMINI_API_KEY);
+                currentModelName,BuildConfig.GEMINI_API_KEY);
 
-        // 🌟 프롬프트를 조금 더 확실하게 수정
         com.google.ai.client.generativeai.type.Content content = new com.google.ai.client.generativeai.type.Content.Builder()
                 .addImage(resizedBitmap)
                 .addText("이 이미지에 있는 손글씨 일기 내용을 정확하게 텍스트로 추출해줘. 오직 추출된 텍스트만 출력하고 다른 말은 덧붙이지 마.")
@@ -141,12 +136,10 @@ public class UploadActivity extends AppCompatActivity {
                 new com.google.common.util.concurrent.FutureCallback<com.google.ai.client.generativeai.type.GenerateContentResponse>() {
                     @Override
                     public void onSuccess(com.google.ai.client.generativeai.type.GenerateContentResponse result) {
-                        Log.d("OCR_TEST", "제미나이 OCR 성공! (" + currentModelName + ")");
                         runOnUiThread(() -> openAnalysisWithText(result.getText()));
                     }
                     @Override
                     public void onFailure(Throwable t) {
-                        Log.e("OCR_TEST", "제미나이 에러 (" + currentModelName + "): " + t.getMessage());
                         runOnUiThread(() -> attemptOcrWithModel(resizedBitmap, modelIndex + 1));
                     }
                 }, androidx.core.content.ContextCompat.getMainExecutor(this));
@@ -159,13 +152,19 @@ public class UploadActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> openAnalysisWithText(""));
     }
 
+    // ✅ 이 메서드가 AnalysisActivity로 사진 URI를 전달합니다.
     private void openAnalysisWithText(String extractedText) {
         if (pbScanning != null) pbScanning.setVisibility(View.GONE);
         if (llScanBtnContent != null) llScanBtnContent.setVisibility(View.VISIBLE);
 
         Intent intent = new Intent(UploadActivity.this, AnalysisActivity.class);
         intent.putExtra("extracted_text", extractedText);
-        if (selectedImageUri != null) intent.putExtra("diary_image_uri", selectedImageUri.toString());
+
+        // 🌟 사진 URI를 Intent에 추가
+        if (selectedImageUri != null) {
+            intent.putExtra("diary_image_uri", selectedImageUri.toString());
+        }
+
         startActivity(intent);
     }
 
