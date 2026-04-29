@@ -155,7 +155,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/diary_font"
                 android:text="분석"
-                android:textColor="#666666"
+                android:textColor="#7A5C46"
                 android:textSize="34sp"
                 android:textStyle="bold" />
         </LinearLayout>
